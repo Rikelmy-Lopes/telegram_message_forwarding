@@ -2,3 +2,4 @@ sessao_monitor.session
 sessao_monitor.session-journal
 .env
 **/__pycache__/
+app.log

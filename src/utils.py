@@ -1,7 +1,8 @@
+import logging
 import os
-from dotenv import load_dotenv
 from winotify import Notification
-load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 def get_env(var_name: str):
     value = os.getenv(var_name)
@@ -9,6 +10,7 @@ def get_env(var_name: str):
     if value and value.strip():
         return value.strip()
     else:
+        logger.error(f"Environment variable '{var_name}' does not exist or is empty!")
         raise RuntimeError(f"Environment variable '{var_name}' does not exist or is empty!")
 
 
