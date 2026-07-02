@@ -6,10 +6,10 @@ load_dotenv()
 def get_env(var_name: str):
     value = os.getenv(var_name)
 
-    if value:
-        return value
+    if value and value.strip():
+        return value.strip()
     else:
-        raise RuntimeError("f{var_name} does not exist")
+        raise RuntimeError(f"Environment variable '{var_name}' does not exist or is empty!")
 
 
 
