@@ -16,6 +16,9 @@ async def monitorador(event):
     if not texto_mensagem:
         return
 
+    if not event.chat:
+        return
+
     for palavra in PALAVRAS_CHAVE:
         if palavra in texto_mensagem.lower():
             print(f"Palavra encontrada no canal {event.chat.title}!")
