@@ -1,6 +1,7 @@
 from telethon import TelegramClient, events
-from bot import send_message
-from config import API_HASH, API_ID, CANAIS_ALVO, PALAVRAS_CHAVE
+from bot.bot import send_message
+from config.config import API_HASH, API_ID, CANAIS_ALVO, PALAVRAS_CHAVE
+from config.state import TELEGRAM_FILTER
 from utils import send_notification
 import logging
 
@@ -23,7 +24,7 @@ async def monitorador(event):
         if not event.chat:
             return
 
-        for palavra in PALAVRAS_CHAVE:
+        for palavra in TELEGRAM_FILTER.get_words():
             if palavra in texto_mensagem.lower():
                 logger.info(f"Palavra encontrada no canal {event.chat.title}!")
                 
