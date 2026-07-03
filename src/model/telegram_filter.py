@@ -9,6 +9,13 @@ class TelegramFilter:
         self.channels = channels
 
 
+    def add_words(self, words: list[str]):
+        self.words += words
+
+    def delete_words(self, indexs: list[int]):
+        for index in sorted(indexs, reverse=True):
+            self.words.pop(index)
+
     def get_words(self):
         return self.words
 

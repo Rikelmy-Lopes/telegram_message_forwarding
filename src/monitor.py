@@ -1,6 +1,6 @@
 from telethon import TelegramClient, events
 from bot.bot import send_message
-from config.config import API_HASH, API_ID, CANAIS_ALVO, PALAVRAS_CHAVE
+from config.config import API_HASH, API_ID
 from config.state import TELEGRAM_FILTER
 from utils import send_notification
 import logging
@@ -8,12 +8,12 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-logger.info(f"Palavras sendo monitoradas: {PALAVRAS_CHAVE}\n")
-logger.info(f"Canais sendo monitorados: {CANAIS_ALVO}\n")
+logger.info(f"Palavras sendo monitoradas: {TELEGRAM_FILTER.get_words()}\n")
+logger.info(f"Canais sendo monitorados: {TELEGRAM_FILTER.get_channels()}\n")
 
 client = TelegramClient('sessao_monitor', API_ID, API_HASH)
 
-@client.on(events.NewMessage(chats=CANAIS_ALVO))
+@client.on(events.NewMessage(chats=TELEGRAM_FILTER.get_channels()))
 async def monitorador(event):
     try:
         texto_mensagem: str = event.message.text
