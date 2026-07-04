@@ -14,7 +14,10 @@ keyboard = [
     [InlineKeyboardButton('Sair', callback_data=CANCEL)],
 ]
 
+back_keyboard = [[InlineKeyboardButton('Voltar', callback_data=str(WORDS_OPTIONS))]]
+
 reply_markup = InlineKeyboardMarkup(keyboard)
+back_reply_markup = InlineKeyboardMarkup(back_keyboard)
 
 async def words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
@@ -28,7 +31,11 @@ async def words_options_command(update: Update, context: ContextTypes.DEFAULT_TY
     decision = int(query.data) # type: ignore
     current_words = TELEGRAM_FILTER.get_words()
 
-    if decision == SEE_WORDS:
+    if decision == WORDS_OPTIONS:
+        await query.edit_message_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
+        return WORDS_OPTIONS
+
+    elif decision == SEE_WORDS:
         reply_text = f"Palavras atualmente ativas:\n{format_words_list(current_words)}"
 
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=reply_markup)
@@ -37,7 +44,7 @@ async def words_options_command(update: Update, context: ContextTypes.DEFAULT_TY
     
     elif decision == ADD_WORDS:
         await query.edit_message_text("Envie as palavras que deseja adicionar separadas por ponto e vírgula (;)." \
-            "\n\n<b>Exemplo:</b>\n<code>promoção; grátis; desconto</code>", parse_mode='HTML')
+            "\n\n<b>Exemplo:</b>\n<code>promoção; grátis; desconto</code>", parse_mode='HTML', reply_markup=back_reply_markup)
         return ADD_WORDS
     
     elif decision == DELETE_WORDS:
@@ -52,7 +59,7 @@ async def words_options_command(update: Update, context: ContextTypes.DEFAULT_TY
             f"<b>Lista atual:</b>\n{format_words_list(current_words)}"
             )
         
-        await query.edit_message_text(reply_text, parse_mode='HTML')
+        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup)
         return DELETE_WORDS
     
     elif decision == CANCEL:
@@ -111,8 +118,14 @@ words_handler = ConversationHandler(
     entry_points=[CommandHandler('words', words_command)],
     states={
         WORDS_OPTIONS: [CallbackQueryHandler(words_options_command)],
-        ADD_WORDS: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_words_command)],
-        DELETE_WORDS: [MessageHandler(filters.TEXT & ~filters.COMMAND, delete_words_command)],
+        ADD_WORDS: [
+            CallbackQueryHandler(words_options_command),
+            MessageHandler(filters.TEXT & ~filters.COMMAND, add_words_command)
+        ],
+        DELETE_WORDS: [
+            CallbackQueryHandler(words_options_command),
+            MessageHandler(filters.TEXT & ~filters.COMMAND, delete_words_command)
+        ],
     },
     fallbacks=[CommandHandler('cancel', cancel_command)]
 )
