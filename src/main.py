@@ -1,11 +1,11 @@
 # pyright: reportGeneralTypeIssues=false
 import asyncio
-from monitor import client
+from client.telegram_client import telegram_client
 from bot.bot import application
 
 
 async def main():
-    await client.start()
+    await telegram_client.start()
 
     await application.initialize()
     await application.start()
@@ -13,7 +13,7 @@ async def main():
     if application.updater:
         await application.updater.start_polling()
 
-    await client.run_until_disconnected()
+    await telegram_client.run_until_disconnected()
     
     if application.updater:
         await application.updater.stop()

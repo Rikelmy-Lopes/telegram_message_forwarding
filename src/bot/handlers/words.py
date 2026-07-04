@@ -2,6 +2,7 @@
 # pyright: reportOptionalMemberAccess=false
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
+from bot.utils.text import format_words_list
 from config.state import TELEGRAM_FILTER
 
 WORDS_OPTIONS, SEE_WORDS, ADD_WORDS, DELETE_WORDS, CANCEL = range(5)
@@ -15,17 +16,13 @@ keyboard = [
 
 reply_markup = InlineKeyboardMarkup(keyboard)
 
-def format_words_list(words: list[str]):
-    return "".join(f"<b>{index}</b> - {word}\n" for index, word in enumerate(words))
-
-
-async def words(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
 
     return WORDS_OPTIONS
 
 
-async def words_options(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def words_options_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
     decision = int(query.data) # type: ignore
@@ -66,7 +63,7 @@ async def words_options(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     return ConversationHandler.END
 
 
-async def add_words(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def add_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_text = update.message.text or ""
 
     words_list = [w.strip().lower() for w in user_text.split(';') if w.strip()]
@@ -82,7 +79,7 @@ async def add_words(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return WORDS_OPTIONS
 
 
-async def delete_words(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_text = update.message.text or ""
     current_words = TELEGRAM_FILTER.get_words()
 
@@ -101,7 +98,7 @@ async def delete_words(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     return WORDS_OPTIONS
 
 
-async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
         "Até mais!"
     )
@@ -111,11 +108,11 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 words_handler = ConversationHandler(
-    entry_points=[CommandHandler('words', words)],
+    entry_points=[CommandHandler('words', words_command)],
     states={
-        WORDS_OPTIONS: [CallbackQueryHandler(words_options)],
-        ADD_WORDS: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_words)],
-        DELETE_WORDS: [MessageHandler(filters.TEXT & ~filters.COMMAND, delete_words)],
+        WORDS_OPTIONS: [CallbackQueryHandler(words_options_command)],
+        ADD_WORDS: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_words_command)],
+        DELETE_WORDS: [MessageHandler(filters.TEXT & ~filters.COMMAND, delete_words_command)],
     },
-    fallbacks=[CommandHandler('cancel', cancel)]
+    fallbacks=[CommandHandler('cancel', cancel_command)]
 )
