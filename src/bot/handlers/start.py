@@ -3,8 +3,6 @@
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes, ConversationHandler
 
-MENU = 1
-
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     commands_text = (
         r"🤖 *Comandos Disponíveis:*" "\n\n"
@@ -14,20 +12,11 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     await update.message.reply_text(commands_text, parse_mode='MarkdownV2')
 
-    return MENU
-
-
-async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text(
-        "Ate mais"
-    )
-
     return ConversationHandler.END
+
 
 start_handler = ConversationHandler(
     entry_points=[CommandHandler('start', start_command)],
-    states={
-        MENU: []
-    },
-    fallbacks=[CommandHandler('cancel', cancel_command)]
+    states={},
+    fallbacks=[]
 )
