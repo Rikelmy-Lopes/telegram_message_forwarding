@@ -1,6 +1,6 @@
 # pyright: reportOptionalSubscript=false
 # pyright: reportOptionalMemberAccess=false
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, LinkPreviewOptions, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
 from bot.utils.text import format_text_list
 from config.state import TELEGRAM_FILTER
@@ -19,6 +19,8 @@ back_keyboard = [[InlineKeyboardButton('Voltar', callback_data=str(CHANNELS_OPTI
 
 reply_markup = InlineKeyboardMarkup(keyboard)
 back_reply_markup = InlineKeyboardMarkup(back_keyboard)
+
+link_preview_options = LinkPreviewOptions(is_disabled=True)
 
 
 async def channels_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -40,7 +42,7 @@ async def channels_options_command(update: Update, context: ContextTypes.DEFAULT
     if decision == SEE_CHANNELS:
         reply_text = f"Canais atualmente sendo monitorados:\n{format_text_list(current_channels)}"
 
-        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=reply_markup)
+        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=reply_markup, link_preview_options=link_preview_options)
 
         return CHANNELS_OPTIONS
     
