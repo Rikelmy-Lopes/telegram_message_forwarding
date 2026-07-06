@@ -2,18 +2,24 @@
 # pyright: reportOptionalMemberAccess=false
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
+from bot.utils.state import new_state
 from bot.utils.text import format_text_list
 from config.state import TELEGRAM_FILTER
 
-WORDS_OPTIONS, SEE_WORDS, ADD_WORDS, DELETE_WORDS, CANCEL = range(5)
+class States:
+    WORDS_OPTIONS = new_state()
+    SEE_WORDS = new_state()
+    ADD_WORDS = new_state()
+    DELETE_WORDS = new_state()
+    CANCEL = new_state()
 
 keyboard = [
-    [InlineKeyboardButton('Visualizar Palavras', callback_data=SEE_WORDS)],
-    [InlineKeyboardButton('Adicionar Palavras', callback_data=ADD_WORDS)],
-    [InlineKeyboardButton('Excluir Palavras', callback_data=DELETE_WORDS)],
-    [InlineKeyboardButton('Sair', callback_data=CANCEL)],
+    [InlineKeyboardButton('Visualizar Palavras', callback_data=States.SEE_WORDS)],
+    [InlineKeyboardButton('Adicionar Palavras', callback_data=States.ADD_WORDS)],
+    [InlineKeyboardButton('Excluir Palavras', callback_data=States.DELETE_WORDS)],
+    [InlineKeyboardButton('Sair', callback_data=States.CANCEL)],
 ]
-back_keyboard = [[InlineKeyboardButton('Voltar', callback_data=str(WORDS_OPTIONS))]]
+back_keyboard = [[InlineKeyboardButton('Voltar', callback_data=States.WORDS_OPTIONS)]]
 
 reply_markup = InlineKeyboardMarkup(keyboard)
 back_reply_markup = InlineKeyboardMarkup(back_keyboard)
@@ -22,7 +28,7 @@ back_reply_markup = InlineKeyboardMarkup(back_keyboard)
 async def words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
 
-    return WORDS_OPTIONS
+    return States.WORDS_OPTIONS
 
 
 async def words_options_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -31,26 +37,26 @@ async def words_options_command(update: Update, context: ContextTypes.DEFAULT_TY
     decision = int(query.data) # type: ignore
     current_words = TELEGRAM_FILTER.get_words()
 
-    if decision == WORDS_OPTIONS:
+    if decision == States.WORDS_OPTIONS:
         await query.edit_message_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
-        return WORDS_OPTIONS
+        return States.WORDS_OPTIONS
 
-    elif decision == SEE_WORDS:
+    elif decision == States.SEE_WORDS:
         reply_text = f"Palavras atualmente ativas:\n{format_text_list(current_words)}"
 
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=reply_markup)
 
-        return WORDS_OPTIONS
+        return States.WORDS_OPTIONS
     
-    elif decision == ADD_WORDS:
+    elif decision == States.ADD_WORDS:
         await query.edit_message_text("Envie as palavras que deseja adicionar separadas por ponto e vírgula (;)." \
             "\n\n<b>Exemplo:</b>\n<code>promoção; grátis; desconto</code>", parse_mode='HTML', reply_markup=back_reply_markup)
-        return ADD_WORDS
+        return States.ADD_WORDS
     
-    elif decision == DELETE_WORDS:
+    elif decision == States.DELETE_WORDS:
         if not current_words:
             await query.edit_message_text("Não há palavras para deletar!", reply_markup=reply_markup)
-            return WORDS_OPTIONS
+            return States.WORDS_OPTIONS
         
         reply_text = (
             "🗑️ <b>Excluir Palavras</b>\n\n"
@@ -60,9 +66,9 @@ async def words_options_command(update: Update, context: ContextTypes.DEFAULT_TY
             )
         
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup)
-        return DELETE_WORDS
+        return States.DELETE_WORDS
     
-    elif decision == CANCEL:
+    elif decision == States.CANCEL:
         await query.edit_message_text("Até mais!")
         return ConversationHandler.END
     
@@ -83,7 +89,7 @@ async def add_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     await update.message.reply_text(reply_text, parse_mode='HTML')
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
-    return WORDS_OPTIONS
+    return States.WORDS_OPTIONS
 
 
 async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -94,15 +100,15 @@ async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYP
     valid_indices = [i for i in indexs if i >= 0 and i < len(current_words)]
 
     if not valid_indices:
-        reply_text = f"Error ao deletar as palavras! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_text_list(current_words)}"
+        reply_text = f"Erro ao deletar as palavras! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_text_list(current_words)}"
         await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup)
-        return DELETE_WORDS
+        return States.DELETE_WORDS
 
-    TELEGRAM_FILTER.delete_words(indexs)
+    TELEGRAM_FILTER.delete_words(valid_indices)
 
     await update.message.reply_text("As palavras selecionadas foram deletadas com sucesso! 🎉", parse_mode='HTML')
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
-    return WORDS_OPTIONS
+    return States.WORDS_OPTIONS
 
 
 async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -117,12 +123,12 @@ async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 words_handler = ConversationHandler(
     entry_points=[CommandHandler('words', words_command)],
     states={
-        WORDS_OPTIONS: [CallbackQueryHandler(words_options_command)],
-        ADD_WORDS: [
+        States.WORDS_OPTIONS: [CallbackQueryHandler(words_options_command)],
+        States.ADD_WORDS: [
             CallbackQueryHandler(words_options_command),
             MessageHandler(filters.TEXT & ~filters.COMMAND, add_words_command)
         ],
-        DELETE_WORDS: [
+        States.DELETE_WORDS: [
             CallbackQueryHandler(words_options_command),
             MessageHandler(filters.TEXT & ~filters.COMMAND, delete_words_command)
         ],

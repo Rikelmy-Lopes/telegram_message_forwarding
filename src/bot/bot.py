@@ -6,4 +6,6 @@ from bot.handlers.channels import channels_handler
 
 application = Application.builder().token(token=TOKEN).build()
 
-application.add_handlers([start_handler, words_handler, channels_handler])
+application.add_handler(start_handler, group=0)
+application.add_handler(words_handler, group=1)
+application.add_handler(channels_handler, group=2)
