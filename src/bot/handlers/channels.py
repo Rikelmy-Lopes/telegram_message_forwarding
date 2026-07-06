@@ -64,7 +64,7 @@ async def channels_options_command(update: Update, context: ContextTypes.DEFAULT
             f"<b>Lista atual:</b>\n{format_text_list(current_channels)}"
             )
         
-        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup)
+        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup, link_preview_options=link_preview_options)
         return DELETE_CHANNELS
     
     elif decision == CANCEL:
@@ -88,7 +88,7 @@ async def add_channels_command(update: Update, context: ContextTypes.DEFAULT_TYP
     else:
         reply_text = "Nenhuma canal válido enviado."
 
-    await update.message.reply_text(reply_text, parse_mode='HTML')
+    await update.message.reply_text(reply_text, parse_mode='HTML', link_preview_options=link_preview_options)
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
     return CHANNELS_OPTIONS
 
@@ -102,7 +102,7 @@ async def delete_channels_command(update: Update, context: ContextTypes.DEFAULT_
 
     if not valid_indices:
         reply_text = f"Error ao deletar as canais! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_text_list(current_channels)}"
-        await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup)
+        await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup, link_preview_options=link_preview_options)
         return DELETE_CHANNELS
 
     TELEGRAM_FILTER.delete_channels(indexs)
