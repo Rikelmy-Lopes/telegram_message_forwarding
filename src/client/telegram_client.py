@@ -11,6 +11,6 @@ logger.info(f"Palavras sendo monitoradas: {TELEGRAM_FILTER.get_words()}\n")
 logger.info(f"Canais sendo monitorados: {TELEGRAM_FILTER.get_channels()}\n")
 
 telegram_client = TelegramClient('sessao_monitor', API_ID, API_HASH)
-telegram_client.add_event_handler(on_new_messages, events.NewMessage(chats=TELEGRAM_FILTER.get_channels()))
+telegram_client.add_event_handler(on_new_messages, events.NewMessage(incoming=True, chats=TELEGRAM_FILTER.get_channels()))
 
 logger.info("Monitor iniciado... Pressione Ctrl+C para parar.")

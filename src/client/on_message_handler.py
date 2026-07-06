@@ -1,7 +1,7 @@
 import logging
 from bot.messages.message import send_message
 from config.state import TELEGRAM_FILTER
-from utils import send_notification
+# from utils import send_notification
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -24,8 +24,16 @@ async def on_new_messages(event):
                 alerta = f"🚨 **Palavra-chave detectada! ({palavra})** \n\nCanal: {event.chat.title}\nTexto: {texto_mensagem}\nLink: {link_mensagem}"
                 
                 await send_message(alerta)
-                send_notification(alerta, palavra)
+                # send_notification(alerta, palavra)
                 break
 
     except Exception as e:
         logger.exception(e)
+
+
+def update_on_new_messages_handler(event):
+    from client.telegram_client import telegram_client
+    
+    telegram_client.remove_event_handler(on_new_messages, event)
+
+    telegram_client.add_event_handler(on_new_messages, event)
