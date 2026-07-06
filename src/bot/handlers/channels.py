@@ -2,7 +2,7 @@
 # pyright: reportOptionalMemberAccess=false
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
-from bot.utils.text import format_words_list
+from bot.utils.text import format_text_list
 from config.state import TELEGRAM_FILTER
 from utils import is_valid_url
 
@@ -14,8 +14,11 @@ keyboard = [
     [InlineKeyboardButton('Excluir Canais', callback_data=DELETE_CHANNELS)],
     [InlineKeyboardButton('Sair', callback_data=CANCEL)],
 ]
+back_keyboard = [[InlineKeyboardButton('Voltar', callback_data=str(CHANNELS_OPTIONS))]]
+
 
 reply_markup = InlineKeyboardMarkup(keyboard)
+back_reply_markup = InlineKeyboardMarkup(back_keyboard)
 
 
 async def channels_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -30,8 +33,12 @@ async def channels_options_command(update: Update, context: ContextTypes.DEFAULT
     decision = int(query.data) # type: ignore
     current_channels = TELEGRAM_FILTER.get_channels()
 
+    if decision == CHANNELS_OPTIONS:
+        await query.edit_message_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
+        return CHANNELS_OPTIONS
+
     if decision == SEE_CHANNELS:
-        reply_text = f"Canais atualmente sendo monitorados:\n{format_words_list(current_channels)}"
+        reply_text = f"Canais atualmente sendo monitorados:\n{format_text_list(current_channels)}"
 
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=reply_markup)
 
@@ -39,7 +46,8 @@ async def channels_options_command(update: Update, context: ContextTypes.DEFAULT
     
     elif decision == ADD_CHANNELS:
         await query.edit_message_text("Envie as canais que deseja adicionar separadas por ponto e vírgula (;)." \
-            "\n\n<b>Exemplo:</b>\n<code>https://t.me/example1; https://t.me/example2; https://t.me/example3</code>", parse_mode='HTML')
+            "\n\n<b>Exemplo:</b>\n<code>https://t.me/example1; https://t.me/example2; https://t.me/example3</code>", parse_mode='HTML', 
+            reply_markup=back_reply_markup)
         return ADD_CHANNELS
     
     elif decision == DELETE_CHANNELS:
@@ -51,10 +59,10 @@ async def channels_options_command(update: Update, context: ContextTypes.DEFAULT
             "🗑️ <b>Excluir Canais</b>\n\n"
             "Envie o número dos canais que deseja remover separadas por <code>;</code>.\n\n"
             "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
-            f"<b>Lista atual:</b>\n{format_words_list(current_channels)}"
+            f"<b>Lista atual:</b>\n{format_text_list(current_channels)}"
             )
         
-        await query.edit_message_text(reply_text, parse_mode='HTML')
+        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup)
         return DELETE_CHANNELS
     
     elif decision == CANCEL:
@@ -74,7 +82,7 @@ async def add_channels_command(update: Update, context: ContextTypes.DEFAULT_TYP
 
     if channels_list:
         TELEGRAM_FILTER.add_channels(channels_list)
-        reply_text = f"Canais atualizadas com sucesso!\n<b>Lista atual:</b>\n{format_words_list(TELEGRAM_FILTER.get_channels())}"
+        reply_text = f"Canais atualizadas com sucesso!\n<b>Lista atual:</b>\n{format_text_list(TELEGRAM_FILTER.get_channels())}"
     else:
         reply_text = "Nenhuma canal válido enviado."
 
@@ -91,8 +99,8 @@ async def delete_channels_command(update: Update, context: ContextTypes.DEFAULT_
     valid_indices = [i for i in indexs if i >= 0 and i < len(current_channels)]
 
     if not valid_indices:
-        reply_text = f"Error ao deletar as canais! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_words_list(current_channels)}"
-        await update.message.reply_text(reply_text, parse_mode='HTML')
+        reply_text = f"Error ao deletar as canais! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_text_list(current_channels)}"
+        await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup)
         return DELETE_CHANNELS
 
     TELEGRAM_FILTER.delete_channels(indexs)
@@ -115,8 +123,17 @@ channels_handler = ConversationHandler(
     entry_points=[CommandHandler('channels', channels_command)],
     states={
         CHANNELS_OPTIONS: [CallbackQueryHandler(channels_options_command)],
-        ADD_CHANNELS: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_channels_command)],
-        DELETE_CHANNELS: [MessageHandler(filters.TEXT & ~filters.COMMAND, delete_channels_command)],
+        ADD_CHANNELS: [
+            CallbackQueryHandler(channels_options_command),
+            MessageHandler(filters.TEXT & ~filters.COMMAND, add_channels_command)
+            ],
+        DELETE_CHANNELS: [
+            CallbackQueryHandler(channels_options_command),
+            MessageHandler(filters.TEXT & ~filters.COMMAND, delete_channels_command)
+            ],
     },
-    fallbacks=[CommandHandler('cancel', cancel_command)]
+    fallbacks=[
+        CommandHandler('channels', channels_command),
+        CommandHandler('cancel', cancel_command)
+        ]
 )

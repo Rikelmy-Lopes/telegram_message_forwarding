@@ -2,7 +2,7 @@
 # pyright: reportOptionalMemberAccess=false
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
-from bot.utils.text import format_words_list
+from bot.utils.text import format_text_list
 from config.state import TELEGRAM_FILTER
 
 WORDS_OPTIONS, SEE_WORDS, ADD_WORDS, DELETE_WORDS, CANCEL = range(5)
@@ -13,11 +13,11 @@ keyboard = [
     [InlineKeyboardButton('Excluir Palavras', callback_data=DELETE_WORDS)],
     [InlineKeyboardButton('Sair', callback_data=CANCEL)],
 ]
-
 back_keyboard = [[InlineKeyboardButton('Voltar', callback_data=str(WORDS_OPTIONS))]]
 
 reply_markup = InlineKeyboardMarkup(keyboard)
 back_reply_markup = InlineKeyboardMarkup(back_keyboard)
+
 
 async def words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
@@ -36,7 +36,7 @@ async def words_options_command(update: Update, context: ContextTypes.DEFAULT_TY
         return WORDS_OPTIONS
 
     elif decision == SEE_WORDS:
-        reply_text = f"Palavras atualmente ativas:\n{format_words_list(current_words)}"
+        reply_text = f"Palavras atualmente ativas:\n{format_text_list(current_words)}"
 
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=reply_markup)
 
@@ -56,7 +56,7 @@ async def words_options_command(update: Update, context: ContextTypes.DEFAULT_TY
             "🗑️ <b>Excluir Palavras</b>\n\n"
             "Envie o número das palavras que deseja remover separadas por <code>;</code>.\n\n"
             "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
-            f"<b>Lista atual:</b>\n{format_words_list(current_words)}"
+            f"<b>Lista atual:</b>\n{format_text_list(current_words)}"
             )
         
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup)
@@ -77,7 +77,7 @@ async def add_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     if words_list:
         TELEGRAM_FILTER.add_words(words_list)
-        reply_text = f"Palavras atualizadas com sucesso!\n<b>Lista atual:</b>\n{format_words_list(TELEGRAM_FILTER.get_words())}"
+        reply_text = f"Palavras atualizadas com sucesso!\n<b>Lista atual:</b>\n{format_text_list(TELEGRAM_FILTER.get_words())}"
     else:
         reply_text = "Nenhuma palavra válida enviada."
 
@@ -94,8 +94,8 @@ async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYP
     valid_indices = [i for i in indexs if i >= 0 and i < len(current_words)]
 
     if not valid_indices:
-        reply_text = f"Error ao deletar as palavras! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_words_list(current_words)}"
-        await update.message.reply_text(reply_text, parse_mode='HTML')
+        reply_text = f"Error ao deletar as palavras! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_text_list(current_words)}"
+        await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup)
         return DELETE_WORDS
 
     TELEGRAM_FILTER.delete_words(indexs)
@@ -127,5 +127,8 @@ words_handler = ConversationHandler(
             MessageHandler(filters.TEXT & ~filters.COMMAND, delete_words_command)
         ],
     },
-    fallbacks=[CommandHandler('cancel', cancel_command)]
+    fallbacks=[
+        CommandHandler('words', words_command),
+        CommandHandler('cancel', cancel_command)
+        ]
 )
