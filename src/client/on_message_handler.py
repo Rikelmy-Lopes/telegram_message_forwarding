@@ -1,5 +1,5 @@
 import logging
-from bot.bot import send_message
+from bot.messages.message import send_message
 from config.state import TELEGRAM_FILTER
 from utils import send_notification
 

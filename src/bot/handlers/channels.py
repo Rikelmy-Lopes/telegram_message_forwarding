@@ -78,8 +78,6 @@ async def channels_options_command(update: Update, context: ContextTypes.DEFAULT
 async def add_channels_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_text = update.message.text or ""
 
-    print(user_text)
-
     channels_list = [c.strip() for c in user_text.split(';') if c.strip() and is_valid_url(c.strip())]
 
     if channels_list:
