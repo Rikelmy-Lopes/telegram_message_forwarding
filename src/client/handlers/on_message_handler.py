@@ -29,11 +29,3 @@ async def on_new_messages(event):
 
     except Exception as e:
         logger.exception(e)
-
-
-def update_on_new_messages_handler(event):
-    from client.telegram_client import telegram_client
-    
-    telegram_client.remove_event_handler(on_new_messages, event)
-
-    telegram_client.add_event_handler(on_new_messages, event)
