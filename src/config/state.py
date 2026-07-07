@@ -9,7 +9,7 @@ _words = lista_tv_ps5 = [
     'playstation 5',
     'play station 5',
     'ps5',
-    'playstation'
+    'playstation',
 ]
 
 _channels = [
@@ -21,3 +21,4 @@ _channels = [
 ]
 
 TELEGRAM_FILTER = TelegramFilter(_words, _channels)
+CHAT_ID = None

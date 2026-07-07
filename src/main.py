@@ -1,6 +1,7 @@
 # pyright: reportGeneralTypeIssues=false
 import asyncio
 import logging
+import client.utils.user
 from client.client import telegram_client
 from bot.bot import application
 from config.state import TELEGRAM_FILTER
@@ -14,6 +15,8 @@ logger.info(f"Canais sendo monitorados: {TELEGRAM_FILTER.get_channels()}\n")
 
 async def main():
     await telegram_client.start()
+
+    await client.utils.user.set_chat_id()
 
     await application.initialize()
     await application.start()
