@@ -13,61 +13,60 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 class States:
-    CHANNELS_OPTIONS = new_state()
-    SEE_CHANNELS = new_state()
+    MENU = new_state()
+    LIST_CHANNELS = new_state()
     ADD_CHANNELS = new_state()
     DELETE_CHANNELS = new_state()
     CANCEL = new_state()
 
 
-keyboard = [
-    [InlineKeyboardButton('Visualizar Canais', callback_data=States.SEE_CHANNELS)],
+KEYBOARD = [
+    [InlineKeyboardButton('Visualizar Canais', callback_data=States.LIST_CHANNELS)],
     [InlineKeyboardButton('Adicionar Canais', callback_data=States.ADD_CHANNELS)],
     [InlineKeyboardButton('Excluir Canais', callback_data=States.DELETE_CHANNELS)],
     [InlineKeyboardButton('Sair', callback_data=States.CANCEL)],
 ]
-back_keyboard = [[InlineKeyboardButton('Voltar', callback_data=States.CHANNELS_OPTIONS)]]
+BACK_KEYBOARD = [[InlineKeyboardButton('Voltar', callback_data=States.MENU)]]
 
 
-reply_markup = InlineKeyboardMarkup(keyboard)
-back_reply_markup = InlineKeyboardMarkup(back_keyboard)
-
-link_preview_options = LinkPreviewOptions(is_disabled=True)
+REPLY_MARKUP = InlineKeyboardMarkup(KEYBOARD)
+BACK_REPLY_MARKUP = InlineKeyboardMarkup(BACK_KEYBOARD)
+LINK_PREVIEW_OPTIONS = LinkPreviewOptions(is_disabled=True)
 
 
 async def channels_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
+    await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
 
-    return States.CHANNELS_OPTIONS
+    return States.MENU
 
 
-async def channels_options_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
-    decision = int(query.data) # type: ignore
+    selected_option = int(query.data) # type: ignore
     current_channels = TELEGRAM_FILTER.get_channels()
 
-    if decision == States.CHANNELS_OPTIONS:
-        await query.edit_message_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
-        return States.CHANNELS_OPTIONS
+    if selected_option == States.MENU:
+        await query.edit_message_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
+        return States.MENU
 
-    if decision == States.SEE_CHANNELS:
+    if selected_option == States.LIST_CHANNELS:
         reply_text = f"Canais atualmente sendo monitorados:\n{format_text_list(current_channels)}"
 
-        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=reply_markup, link_preview_options=link_preview_options)
+        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
 
-        return States.CHANNELS_OPTIONS
+        return States.MENU
     
-    elif decision == States.ADD_CHANNELS:
+    elif selected_option == States.ADD_CHANNELS:
         await query.edit_message_text("Envie as canais que deseja adicionar separadas por ponto e vírgula (;)." \
             "\n\n<b>Exemplo:</b>\n<code>https://t.me/example1; https://t.me/example2; https://t.me/example3</code>", parse_mode='HTML', 
-            reply_markup=back_reply_markup)
+            reply_markup=BACK_REPLY_MARKUP)
         return States.ADD_CHANNELS
     
-    elif decision == States.DELETE_CHANNELS:
+    elif selected_option == States.DELETE_CHANNELS:
         if not current_channels:
-            await query.edit_message_text("Não há canais para deletar!", reply_markup=reply_markup)
-            return States.CHANNELS_OPTIONS
+            await query.edit_message_text("Não há canais para deletar!", reply_markup=REPLY_MARKUP)
+            return States.MENU
         
         reply_text = (
             "🗑️ <b>Excluir Canais</b>\n\n"
@@ -76,10 +75,10 @@ async def channels_options_command(update: Update, context: ContextTypes.DEFAULT
             f"<b>Lista atual:</b>\n{format_text_list(current_channels)}"
             )
         
-        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup, link_preview_options=link_preview_options)
+        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
         return States.DELETE_CHANNELS
     
-    elif decision == States.CANCEL:
+    elif selected_option == States.CANCEL:
         await query.edit_message_text("Até mais!")
         return ConversationHandler.END
     
@@ -102,9 +101,9 @@ async def add_channels_command(update: Update, context: ContextTypes.DEFAULT_TYP
     else:
         reply_text = "Nenhuma canal válido enviado."
 
-    await update.message.reply_text(reply_text, parse_mode='HTML', link_preview_options=link_preview_options)
-    await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
-    return States.CHANNELS_OPTIONS
+    await update.message.reply_text(reply_text, parse_mode='HTML', link_preview_options=LINK_PREVIEW_OPTIONS)
+    await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
+    return States.MENU
 
 
 async def delete_channels_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -116,7 +115,7 @@ async def delete_channels_command(update: Update, context: ContextTypes.DEFAULT_
 
     if not valid_indices:
         reply_text = f"Erro ao deletar as canais! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_text_list(current_channels)}"
-        await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup, link_preview_options=link_preview_options)
+        await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
         return States.DELETE_CHANNELS
 
     removed = TELEGRAM_FILTER.delete_channels(valid_indices)
@@ -127,8 +126,8 @@ async def delete_channels_command(update: Update, context: ContextTypes.DEFAULT_
     logger.info(f"Canais removidos:\n{format_text_list(removed)}")
 
     await update.message.reply_text("Os canais selecionados foram deletadas com sucesso! 🎉", parse_mode='HTML')
-    await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
-    return States.CHANNELS_OPTIONS
+    await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
+    return States.MENU
 
 
 async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -143,13 +142,13 @@ async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 channels_handler = ConversationHandler(
     entry_points=[CommandHandler('channels', channels_command)],
     states={
-        States.CHANNELS_OPTIONS: [CallbackQueryHandler(channels_options_command)],
+        States.MENU: [CallbackQueryHandler(handle_menu_selection)],
         States.ADD_CHANNELS: [
-            CallbackQueryHandler(channels_options_command),
+            CallbackQueryHandler(handle_menu_selection),
             MessageHandler(filters.TEXT & ~filters.COMMAND, add_channels_command)
             ],
         States.DELETE_CHANNELS: [
-            CallbackQueryHandler(channels_options_command),
+            CallbackQueryHandler(handle_menu_selection),
             MessageHandler(filters.TEXT & ~filters.COMMAND, delete_channels_command)
             ],
     },
