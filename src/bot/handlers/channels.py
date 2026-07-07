@@ -1,6 +1,6 @@
 # pyright: reportOptionalSubscript=false
 # pyright: reportOptionalMemberAccess=false
-
+import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, LinkPreviewOptions, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
 from telethon import events
@@ -8,6 +8,9 @@ from bot.utils.state import new_state
 from bot.utils.text import format_text_list
 from config.state import TELEGRAM_FILTER
 from utils import is_valid_url
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 class States:
     CHANNELS_OPTIONS = new_state()
@@ -95,6 +98,7 @@ async def add_channels_command(update: Update, context: ContextTypes.DEFAULT_TYP
         TELEGRAM_FILTER.add_channels(channels_list)
         update_on_new_messages_handler(events.NewMessage(incoming=True, chats=TELEGRAM_FILTER.get_channels()))
         reply_text = f"Canais atualizadas com sucesso!\n<b>Lista atual:</b>\n{format_text_list(TELEGRAM_FILTER.get_channels())}"
+        logger.info(reply_text)
     else:
         reply_text = "Nenhuma canal válido enviado."
 
@@ -115,9 +119,12 @@ async def delete_channels_command(update: Update, context: ContextTypes.DEFAULT_
         await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup, link_preview_options=link_preview_options)
         return States.DELETE_CHANNELS
 
-    TELEGRAM_FILTER.delete_channels(valid_indices)
+    removed = TELEGRAM_FILTER.delete_channels(valid_indices)
     from client.on_message_handler import update_on_new_messages_handler
+
     update_on_new_messages_handler(events.NewMessage(incoming=True, chats=TELEGRAM_FILTER.get_channels()))
+    
+    logger.info(f"Canais removidos:\n{format_text_list(removed)}")
 
     await update.message.reply_text("Os canais selecionados foram deletadas com sucesso! 🎉", parse_mode='HTML')
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)

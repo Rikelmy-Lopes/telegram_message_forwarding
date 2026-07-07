@@ -1,10 +1,14 @@
 # pyright: reportOptionalSubscript=false
 # pyright: reportOptionalMemberAccess=false
+import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
 from bot.utils.state import new_state
 from bot.utils.text import format_text_list
 from config.state import TELEGRAM_FILTER
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 class States:
     WORDS_OPTIONS = new_state()
@@ -84,6 +88,7 @@ async def add_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     if words_list:
         TELEGRAM_FILTER.add_words(words_list)
         reply_text = f"Palavras atualizadas com sucesso!\n<b>Lista atual:</b>\n{format_text_list(TELEGRAM_FILTER.get_words())}"
+        logger.info(reply_text)
     else:
         reply_text = "Nenhuma palavra válida enviada."
 
@@ -104,7 +109,8 @@ async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYP
         await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=back_reply_markup)
         return States.DELETE_WORDS
 
-    TELEGRAM_FILTER.delete_words(valid_indices)
+    removed = TELEGRAM_FILTER.delete_words(valid_indices)
+    logger.info(f"Palavras removidas:\n{format_text_list(removed)}")
 
     await update.message.reply_text("As palavras selecionadas foram deletadas com sucesso! 🎉", parse_mode='HTML')
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=reply_markup)
