@@ -15,7 +15,7 @@ async def on_new_messages(event: events.NewMessage.Event):
         if not texto_mensagem:
             return
         
-        chat_title = event.chat.title if event.chat else 'Chat Desconhecido'
+        chat_title = event.chat.title if event.chat and event.chat.title else 'Chat Desconhecido'
         message_id = event.message.id
 
         for palavra in TELEGRAM_FILTER.get_words():
@@ -23,7 +23,7 @@ async def on_new_messages(event: events.NewMessage.Event):
                 logger.info(f"Palavra encontrada no canal {chat_title}!")
                 
                 link_mensagem = f"https://t.me/{event.chat.username}/{message_id}" if event.chat and event.chat.username else "Canal Privado"
-                alerta = f"🚨 **Palavra-chave detectada! ({palavra})** \n\nCanal: {chat_title}\nTexto: {texto_mensagem}\nLink: {link_mensagem}"
+                alerta = f"🚨 <b>Palavra-chave detectada! ({palavra})</b> \n\nCanal: {chat_title}\nTexto: {texto_mensagem}\nLink: {link_mensagem}"
                 
                 await send_message(alerta)
                 # send_notification(alerta, palavra)
