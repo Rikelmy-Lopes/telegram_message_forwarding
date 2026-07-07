@@ -10,10 +10,14 @@ class TelegramFilter:
 
 
     def add_words(self, words: list[str]):
-        self.words += words
+        for word in words:
+            if word not in self.words:
+                self.words.append(word)
 
     def add_channels(self, channels: list[str]):
-        self.channels += channels
+        for channel in channels:
+            if channel not in self.channels:
+                self.channels.append(channel)
 
     def delete_words(self, indexs: list[int]) -> list[str]:
         removed = []

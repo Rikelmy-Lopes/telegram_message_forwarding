@@ -1,6 +1,6 @@
 from model.telegram_filter import TelegramFilter
 
-words = lista_tv_ps5 = [
+_words = lista_tv_ps5 = [
     'stick tv',
     'tv stick',
     'mi tv stick',
@@ -12,7 +12,7 @@ words = lista_tv_ps5 = [
     'playstation'
 ]
 
-channels = [
+_channels = [
     "https://t.me/garimpeirosoficial", 
     "https://t.me/economizanderson", 
     "https://t.me/ganhandonanetbrofc", 
@@ -20,4 +20,4 @@ channels = [
     "https://t.me/brothersofertas_oficial"
 ]
 
-TELEGRAM_FILTER = TelegramFilter(words, channels)
+TELEGRAM_FILTER = TelegramFilter(_words, _channels)
