@@ -3,7 +3,6 @@
 import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, LinkPreviewOptions, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
-from telethon import events
 from bot.utils.state import new_state
 from bot.utils.text import format_text_list
 from config.state import TELEGRAM_FILTER
@@ -49,7 +48,7 @@ async def add_channels_command(update: Update, context: ContextTypes.DEFAULT_TYP
         from client.handlers.handlers import update_on_new_messages_handler
         
         TELEGRAM_FILTER.add_channels(channels_list)
-        update_on_new_messages_handler(events.NewMessage(incoming=True, chats=TELEGRAM_FILTER.get_channels()))
+        update_on_new_messages_handler()
         reply_text = f"Canais atualizadas com sucesso!\n<b>Lista atual:</b>\n{format_text_list(TELEGRAM_FILTER.get_channels())}"
         logger.info(reply_text)
     else:
@@ -75,7 +74,7 @@ async def delete_channels_command(update: Update, context: ContextTypes.DEFAULT_
     removed = TELEGRAM_FILTER.delete_channels(valid_indices)
     from client.handlers.handlers import update_on_new_messages_handler
 
-    update_on_new_messages_handler(events.NewMessage(incoming=True, chats=TELEGRAM_FILTER.get_channels()))
+    update_on_new_messages_handler()
     
     logger.info(f"Canais removidos:\n{format_text_list(removed)}")
 
