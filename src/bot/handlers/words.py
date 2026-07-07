@@ -35,51 +35,6 @@ async def words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     return States.MENU
 
 
-async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    query = update.callback_query
-    await query.answer()
-    selected_option = int(query.data) # type: ignore
-    current_words = TELEGRAM_FILTER.get_words()
-
-    if selected_option == States.MENU:
-        await query.edit_message_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
-        return States.MENU
-
-    elif selected_option == States.LIST_WORDS:
-        reply_text = f"Palavras atualmente ativas:\n{format_text_list(current_words)}"
-
-        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP)
-
-        return States.MENU
-    
-    elif selected_option == States.ADD_WORDS:
-        await query.edit_message_text("Envie as palavras que deseja adicionar separadas por ponto e vírgula (;)." \
-            "\n\n<b>Exemplo:</b>\n<code>promoção; grátis; desconto</code>", parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
-        return States.ADD_WORDS
-    
-    elif selected_option == States.DELETE_WORDS:
-        if not current_words:
-            await query.edit_message_text("Não há palavras para deletar!", reply_markup=REPLY_MARKUP)
-            return States.MENU
-        
-        reply_text = (
-            "🗑️ <b>Excluir Palavras</b>\n\n"
-            "Envie o número das palavras que deseja remover separadas por <code>;</code>.\n\n"
-            "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
-            f"<b>Lista atual:</b>\n{format_text_list(current_words)}"
-            )
-        
-        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
-        return States.DELETE_WORDS
-    
-    elif selected_option == States.CANCEL:
-        await query.edit_message_text("Até mais!")
-        return ConversationHandler.END
-    
-
-    return ConversationHandler.END
-
-
 async def add_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_text = update.message.text or ""
 
@@ -121,6 +76,51 @@ async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     await update.message.reply_text(
         "Até mais!"
     )
+
+    return ConversationHandler.END
+
+
+async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    await query.answer()
+    selected_option = int(query.data) # type: ignore
+    current_words = TELEGRAM_FILTER.get_words()
+
+    if selected_option == States.MENU:
+        await query.edit_message_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
+        return States.MENU
+
+    elif selected_option == States.LIST_WORDS:
+        reply_text = f"Palavras atualmente ativas:\n{format_text_list(current_words)}"
+
+        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP)
+
+        return States.MENU
+    
+    elif selected_option == States.ADD_WORDS:
+        await query.edit_message_text("Envie as palavras que deseja adicionar separadas por ponto e vírgula (;)." \
+            "\n\n<b>Exemplo:</b>\n<code>promoção; grátis; desconto</code>", parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
+        return States.ADD_WORDS
+    
+    elif selected_option == States.DELETE_WORDS:
+        if not current_words:
+            await query.edit_message_text("Não há palavras para deletar!", reply_markup=REPLY_MARKUP)
+            return States.MENU
+        
+        reply_text = (
+            "🗑️ <b>Excluir Palavras</b>\n\n"
+            "Envie o número das palavras que deseja remover separadas por <code>;</code>.\n\n"
+            "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
+            f"<b>Lista atual:</b>\n{format_text_list(current_words)}"
+            )
+        
+        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
+        return States.DELETE_WORDS
+    
+    elif selected_option == States.CANCEL:
+        await query.edit_message_text("Até mais!")
+        return ConversationHandler.END
+    
 
     return ConversationHandler.END
 

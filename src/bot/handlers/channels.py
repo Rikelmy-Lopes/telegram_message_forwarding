@@ -40,52 +40,6 @@ async def channels_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     return States.MENU
 
 
-async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    query = update.callback_query
-    await query.answer()
-    selected_option = int(query.data) # type: ignore
-    current_channels = TELEGRAM_FILTER.get_channels()
-
-    if selected_option == States.MENU:
-        await query.edit_message_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
-        return States.MENU
-
-    if selected_option == States.LIST_CHANNELS:
-        reply_text = f"Canais atualmente sendo monitorados:\n{format_text_list(current_channels)}"
-
-        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
-
-        return States.MENU
-    
-    elif selected_option == States.ADD_CHANNELS:
-        await query.edit_message_text("Envie as canais que deseja adicionar separadas por ponto e vírgula (;)." \
-            "\n\n<b>Exemplo:</b>\n<code>https://t.me/example1; https://t.me/example2; https://t.me/example3</code>", parse_mode='HTML', 
-            reply_markup=BACK_REPLY_MARKUP)
-        return States.ADD_CHANNELS
-    
-    elif selected_option == States.DELETE_CHANNELS:
-        if not current_channels:
-            await query.edit_message_text("Não há canais para deletar!", reply_markup=REPLY_MARKUP)
-            return States.MENU
-        
-        reply_text = (
-            "🗑️ <b>Excluir Canais</b>\n\n"
-            "Envie o número dos canais que deseja remover separadas por <code>;</code>.\n\n"
-            "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
-            f"<b>Lista atual:</b>\n{format_text_list(current_channels)}"
-            )
-        
-        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
-        return States.DELETE_CHANNELS
-    
-    elif selected_option == States.CANCEL:
-        await query.edit_message_text("Até mais!")
-        return ConversationHandler.END
-    
-
-    return ConversationHandler.END
-
-
 async def add_channels_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_text = update.message.text or ""
 
@@ -134,6 +88,52 @@ async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     await update.message.reply_text(
         "Até mais!"
     )
+
+    return ConversationHandler.END
+
+
+async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    await query.answer()
+    selected_option = int(query.data) # type: ignore
+    current_channels = TELEGRAM_FILTER.get_channels()
+
+    if selected_option == States.MENU:
+        await query.edit_message_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
+        return States.MENU
+
+    if selected_option == States.LIST_CHANNELS:
+        reply_text = f"Canais atualmente sendo monitorados:\n{format_text_list(current_channels)}"
+
+        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
+
+        return States.MENU
+    
+    elif selected_option == States.ADD_CHANNELS:
+        await query.edit_message_text("Envie as canais que deseja adicionar separadas por ponto e vírgula (;)." \
+            "\n\n<b>Exemplo:</b>\n<code>https://t.me/example1; https://t.me/example2; https://t.me/example3</code>", parse_mode='HTML', 
+            reply_markup=BACK_REPLY_MARKUP)
+        return States.ADD_CHANNELS
+    
+    elif selected_option == States.DELETE_CHANNELS:
+        if not current_channels:
+            await query.edit_message_text("Não há canais para deletar!", reply_markup=REPLY_MARKUP)
+            return States.MENU
+        
+        reply_text = (
+            "🗑️ <b>Excluir Canais</b>\n\n"
+            "Envie o número dos canais que deseja remover separadas por <code>;</code>.\n\n"
+            "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
+            f"<b>Lista atual:</b>\n{format_text_list(current_channels)}"
+            )
+        
+        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
+        return States.DELETE_CHANNELS
+    
+    elif selected_option == States.CANCEL:
+        await query.edit_message_text("Até mais!")
+        return ConversationHandler.END
+    
 
     return ConversationHandler.END
 
