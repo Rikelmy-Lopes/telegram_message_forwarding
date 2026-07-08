@@ -20,7 +20,7 @@ async def on_new_messages(event: events.NewMessage.Event):
 
         for palavra in TELEGRAM_FILTER.get_words():
             if palavra in texto_mensagem.lower():
-                logger.info(f"Palavra encontrada no canal {chat_title}!")
+                logger.info(f"Palavra encontrada no canal {chat_title} - ({palavra})!")
                 
                 link_mensagem = f"https://t.me/{event.chat.username}/{message_id}" if event.chat and event.chat.username else "Canal Privado"
                 alerta = f"🚨 <b>Palavra-chave detectada! ({palavra})</b> \n\nCanal: {chat_title}\nTexto: {texto_mensagem}\nLink: {link_mensagem}"

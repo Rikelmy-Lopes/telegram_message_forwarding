@@ -1,6 +1,6 @@
 from model.telegram_filter import TelegramFilter
 
-_words = lista_tv_ps5 = [
+_words = [
     'stick tv',
     'tv stick',
     'mi tv stick',
