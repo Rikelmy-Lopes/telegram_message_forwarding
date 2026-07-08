@@ -42,7 +42,7 @@ async def channels_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 async def add_channels_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_text = update.message.text or ""
 
-    channels_list = [c.strip() for c in user_text.split(';') if c.strip() and is_valid_url(c.strip())]
+    channels_list = [c.strip() for c in user_text.split(';') if is_valid_url(c)]
 
     if channels_list:
         from client.handlers.handlers import update_on_new_messages_handler
@@ -51,7 +51,7 @@ async def add_channels_command(update: Update, context: ContextTypes.DEFAULT_TYP
 
         update_on_new_messages_handler()
 
-        reply_text = f"Canais atualizadas com sucesso!\n<b>Lista atual:</b>\n{format_text_list(TELEGRAM_FILTER.get_channels())}"
+        reply_text = f"Canais atualizados com sucesso!\n<b>Lista atual:</b>\n{format_text_list(TELEGRAM_FILTER.get_channels())}"
         logger.info(reply_text)
     else:
         reply_text = "Nenhuma canal válido enviado."

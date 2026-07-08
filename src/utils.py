@@ -27,6 +27,9 @@ def send_notification(msg: str, palavra: str):
 
 
 def is_valid_url(url: str):
+    if not url or not url.strip():
+        return False
+    
     pattern = re.compile(
         r'^https?://'
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
@@ -36,4 +39,4 @@ def is_valid_url(url: str):
         r'(?:/?|[/?]\S+)$', re.IGNORECASE
     )
     
-    return bool(pattern.match(url))
+    return bool(pattern.match(url.strip()))
