@@ -35,4 +35,9 @@ async def main():
     await application.shutdown()
 
 
-asyncio.run(main())
+
+try:
+    asyncio.run(main())
+except KeyboardInterrupt:
+    logger.warning("Parando execução...")
+    
