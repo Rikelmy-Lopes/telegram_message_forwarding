@@ -102,8 +102,12 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
         return States.MENU
     
     elif selected_option == States.ADD_WORDS:
-        await query.edit_message_text("Envie as palavras que deseja adicionar separadas por ponto e vírgula (;)." \
-            "\n\n<b>Exemplo:</b>\n<code>promoção; grátis; desconto</code>", parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
+        reply_text = (
+            "➕ <b>Adicionar Palavras</b>\n\n"
+            "Envie as palavras que deseja adicionar separadas por ponto e vírgula (;)."
+            "\n\n<b>Exemplo:</b>\n<code>promoção; grátis; desconto</code>"
+        )
+        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
         
         return States.ADD_WORDS
     
@@ -119,7 +123,6 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
             "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
             f"<b>Lista atual:</b>\n{format_text_list(current_words)}"
             )
-        
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
 
         return States.DELETE_WORDS
