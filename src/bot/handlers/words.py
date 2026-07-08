@@ -49,6 +49,7 @@ async def add_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     await update.message.reply_text(reply_text, parse_mode='HTML')
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
+
     return States.MENU
 
 
@@ -56,12 +57,13 @@ async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYP
     user_text = update.message.text or ""
     current_words = TELEGRAM_FILTER.get_words()
 
-    indexs = [int(w.strip()) for w in user_text.split(';') if w.strip().isdigit()]
+    indexs = [int(i.strip()) for i in user_text.split(';') if i.strip().isdigit()]
     valid_indices = [i for i in indexs if i >= 0 and i < len(current_words)]
 
     if not valid_indices:
         reply_text = f"Erro ao deletar as palavras! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_text_list(current_words)}"
         await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
+
         return States.DELETE_WORDS
 
     removed = TELEGRAM_FILTER.delete_words(valid_indices)
@@ -69,6 +71,7 @@ async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYP
 
     await update.message.reply_text("As palavras selecionadas foram deletadas com sucesso! 🎉", parse_mode='HTML')
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
+
     return States.MENU
 
 
@@ -88,6 +91,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
     if selected_option == States.MENU:
         await query.edit_message_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
+
         return States.MENU
 
     elif selected_option == States.LIST_WORDS:
@@ -100,11 +104,13 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
     elif selected_option == States.ADD_WORDS:
         await query.edit_message_text("Envie as palavras que deseja adicionar separadas por ponto e vírgula (;)." \
             "\n\n<b>Exemplo:</b>\n<code>promoção; grátis; desconto</code>", parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
+        
         return States.ADD_WORDS
     
     elif selected_option == States.DELETE_WORDS:
         if not current_words:
             await query.edit_message_text("Não há palavras para deletar!", reply_markup=REPLY_MARKUP)
+
             return States.MENU
         
         reply_text = (
@@ -115,10 +121,12 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
             )
         
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
+
         return States.DELETE_WORDS
     
     elif selected_option == States.CANCEL:
         await query.edit_message_text("Até mais!")
+        
         return ConversationHandler.END
     
 
