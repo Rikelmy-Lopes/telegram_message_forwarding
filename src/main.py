@@ -1,6 +1,7 @@
 # pyright: reportGeneralTypeIssues=false
 import asyncio
 import logging
+from utils.text import format_chat_list
 import client.utils.user
 from client.client import telegram_client
 from bot.bot import application
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 logger.info(f"Palavras sendo monitoradas: {TELEGRAM_FILTER.get_words()}\n")
-logger.info(f"Canais sendo monitorados: {TELEGRAM_FILTER.get_channels()}\n")
+logger.info(f"Canais sendo monitorados:\n{format_chat_list(TELEGRAM_FILTER.get_chats(), True)}\n")
 
 
 async def main():

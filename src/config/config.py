@@ -1,6 +1,6 @@
 import logging
 from dotenv import load_dotenv
-from utils import get_env
+from utils.utils import get_env
 
 load_dotenv()
 

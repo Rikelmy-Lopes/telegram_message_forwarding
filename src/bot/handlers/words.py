@@ -4,7 +4,7 @@ import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
 from bot.utils.state import new_state
-from bot.utils.text import format_text_list
+from utils.text import format_text_list
 from config.state import TELEGRAM_FILTER
 
 logger = logging.getLogger(__name__)

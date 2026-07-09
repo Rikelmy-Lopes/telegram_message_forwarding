@@ -1,14 +1,14 @@
 
 class Chat:
-    id: int
-    name: str
+    _id: int
+    _name: str
 
     def __init__(self, id: int, name: str) -> None:
-        self.id = id
-        self.name = name
+        self._id = id
+        self._name = name
 
     def get_id(self) -> int:
-        return self.id
+        return self._id
 
     def get_name(self) -> str:
-        return self.name
+        return self._name

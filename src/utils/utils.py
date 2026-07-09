@@ -1,6 +1,5 @@
 import logging
 import os
-import re
 from winotify import Notification
 
 logger = logging.getLogger(__name__)
@@ -24,19 +23,3 @@ def send_notification(msg: str, palavra: str):
         duration="short"
     )
     notificacao.show()
-
-
-def is_valid_url(url: str):
-    if not url or not url.strip():
-        return False
-    
-    pattern = re.compile(
-        r'^https?://'
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
-        r'localhost|'
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
-        r'(?::\d+)?'
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE
-    )
-    
-    return bool(pattern.match(url.strip()))
