@@ -61,7 +61,7 @@ class TelegramFilter:
         return self._chats
 
     def get_chats_id(self) -> list[int]:
-            return self._chat_ids
+        return self._chat_ids
 
     def to_json(self) -> str:
         return json.dumps(

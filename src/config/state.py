@@ -14,7 +14,6 @@ _words = [
     'play station 5',
     'ps5',
     'playstation',
-    'a'
 ]
 
 _chats = [
