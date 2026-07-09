@@ -119,6 +119,11 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
         return ConversationState.MENU
 
     if selected_option == ConversationState.LIST_CHATS:
+        if not current_chats:
+            await query.edit_message_text("Nenhum chat sendo monitorado", parse_mode='HTML', reply_markup=REPLY_MARKUP)
+
+            return ConversationState.MENU
+        
         reply_text = f"Chats atualmente sendo monitorados:\n\n{format_chat_list(current_chats)}"
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
 
