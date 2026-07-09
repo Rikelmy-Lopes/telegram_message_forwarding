@@ -8,7 +8,7 @@ async def set_chat_id():
     if not user or not user.id: # type: ignore
         raise Exception("User id cannot be None!")
 
-    config.state.CHAT_ID = user.id # type: ignore
+    config.state.STATE.set_chat_id(user.id) # type: ignore
 
 
 async def get_user_chats():

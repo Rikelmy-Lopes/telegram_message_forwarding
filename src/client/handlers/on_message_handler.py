@@ -2,7 +2,7 @@ import logging
 
 from telethon import events
 from bot.messages.message import send_message
-from config.state import TELEGRAM_FILTER
+from config.state import STATE
 # from utils import send_notification
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ async def on_new_messages(event: events.NewMessage.Event):
         chat_title = event.chat.title if event.chat and event.chat.title else 'Chat Desconhecido'
         message_id = event.message.id
 
-        for palavra in TELEGRAM_FILTER.get_words():
+        for palavra in STATE.get_telegram_filter().get_words():
             if palavra in texto_mensagem.lower():
                 logger.info(f"Palavra encontrada no canal {chat_title} - ({palavra})!")
                 

@@ -5,12 +5,14 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
 from bot.utils.state import new_state
 from utils.text import format_text_list
-from config.state import TELEGRAM_FILTER
+from config.state import STATE
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-class States:
+TELEGRAM_FILTER = STATE.get_telegram_filter()
+
+class ConversationState:
     MENU = new_state()
     LIST_WORDS = new_state()
     ADD_WORDS = new_state()
@@ -18,12 +20,12 @@ class States:
     CANCEL = new_state()
 
 KEYBOARD = [
-    [InlineKeyboardButton('Visualizar Palavras', callback_data=States.LIST_WORDS)],
-    [InlineKeyboardButton('Adicionar Palavras', callback_data=States.ADD_WORDS)],
-    [InlineKeyboardButton('Excluir Palavras', callback_data=States.DELETE_WORDS)],
-    [InlineKeyboardButton('Sair', callback_data=States.CANCEL)],
+    [InlineKeyboardButton('Visualizar Palavras', callback_data=ConversationState.LIST_WORDS)],
+    [InlineKeyboardButton('Adicionar Palavras', callback_data=ConversationState.ADD_WORDS)],
+    [InlineKeyboardButton('Excluir Palavras', callback_data=ConversationState.DELETE_WORDS)],
+    [InlineKeyboardButton('Sair', callback_data=ConversationState.CANCEL)],
 ]
-BACK_KEYBOARD = [[InlineKeyboardButton('Voltar', callback_data=States.MENU)]]
+BACK_KEYBOARD = [[InlineKeyboardButton('Voltar', callback_data=ConversationState.MENU)]]
 
 REPLY_MARKUP = InlineKeyboardMarkup(KEYBOARD)
 BACK_REPLY_MARKUP = InlineKeyboardMarkup(BACK_KEYBOARD)
@@ -32,7 +34,7 @@ BACK_REPLY_MARKUP = InlineKeyboardMarkup(BACK_KEYBOARD)
 async def words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
 
-    return States.MENU
+    return ConversationState.MENU
 
 
 async def add_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -50,7 +52,7 @@ async def add_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     await update.message.reply_text(reply_text, parse_mode='HTML')
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
 
-    return States.MENU
+    return ConversationState.MENU
 
 
 async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -64,7 +66,7 @@ async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYP
         reply_text = f"Erro ao deletar as palavras! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_text_list(current_words)}"
         await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
 
-        return States.DELETE_WORDS
+        return ConversationState.DELETE_WORDS
 
     removed = TELEGRAM_FILTER.delete_words(valid_indices)
     logger.info(f"Palavras removidas:\n{format_text_list(removed)}")
@@ -72,7 +74,7 @@ async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYP
     await update.message.reply_text("As palavras selecionadas foram deletadas com sucesso! 🎉", parse_mode='HTML')
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
 
-    return States.MENU
+    return ConversationState.MENU
 
 
 async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -89,19 +91,19 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
     selected_option = int(query.data) # type: ignore
     current_words = TELEGRAM_FILTER.get_words()
 
-    if selected_option == States.MENU:
+    if selected_option == ConversationState.MENU:
         await query.edit_message_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
 
-        return States.MENU
+        return ConversationState.MENU
 
-    elif selected_option == States.LIST_WORDS:
+    elif selected_option == ConversationState.LIST_WORDS:
         reply_text = f"Palavras atualmente ativas:\n{format_text_list(current_words)}"
 
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP)
 
-        return States.MENU
+        return ConversationState.MENU
     
-    elif selected_option == States.ADD_WORDS:
+    elif selected_option == ConversationState.ADD_WORDS:
         reply_text = (
             "➕ <b>Adicionar Palavras</b>\n\n"
             "Envie as palavras que deseja adicionar separadas por ponto e vírgula (;)."
@@ -109,13 +111,13 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
         )
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
         
-        return States.ADD_WORDS
+        return ConversationState.ADD_WORDS
     
-    elif selected_option == States.DELETE_WORDS:
+    elif selected_option == ConversationState.DELETE_WORDS:
         if not current_words:
             await query.edit_message_text("Não há palavras para deletar!", reply_markup=REPLY_MARKUP)
 
-            return States.MENU
+            return ConversationState.MENU
         
         reply_text = (
             "🗑️ <b>Excluir Palavras</b>\n\n"
@@ -125,9 +127,9 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
             )
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
 
-        return States.DELETE_WORDS
+        return ConversationState.DELETE_WORDS
     
-    elif selected_option == States.CANCEL:
+    elif selected_option == ConversationState.CANCEL:
         await query.edit_message_text("Até mais!")
         
         return ConversationHandler.END
@@ -140,12 +142,12 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 words_handler = ConversationHandler(
     entry_points=[CommandHandler('words', words_command)],
     states={
-        States.MENU: [CallbackQueryHandler(handle_menu_selection)],
-        States.ADD_WORDS: [
+        ConversationState.MENU: [CallbackQueryHandler(handle_menu_selection)],
+        ConversationState.ADD_WORDS: [
             CallbackQueryHandler(handle_menu_selection),
             MessageHandler(filters.TEXT & ~filters.COMMAND, add_words_command)
         ],
-        States.DELETE_WORDS: [
+        ConversationState.DELETE_WORDS: [
             CallbackQueryHandler(handle_menu_selection),
             MessageHandler(filters.TEXT & ~filters.COMMAND, delete_words_command)
         ],

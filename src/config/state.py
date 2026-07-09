@@ -22,5 +22,28 @@ _chats = [
      Chat(-1001443115288, 'BROTHERS OFERTAS OFICIAL'),
 ]
 
-TELEGRAM_FILTER = TelegramFilter(_words, _chats)
-CHAT_ID = None
+class _State:
+    _instance = None
+    _telegram_filter: TelegramFilter
+    _chat_id: None | int
+
+    def __init__(self) -> None:
+        self._telegram_filter = TelegramFilter(_words, _chats)
+        self._chat_id = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def get_telegram_filter(self):
+        return self._telegram_filter
+
+    def get_chat_id(self):
+        return self._chat_id
+
+    def set_chat_id(self, chat_id: int):
+        self._chat_id = chat_id
+
+
+STATE = _State()

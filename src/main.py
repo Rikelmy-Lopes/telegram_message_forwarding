@@ -5,13 +5,15 @@ from utils.text import format_chat_list
 import client.utils.user
 from client.client import telegram_client
 from bot.bot import application
-from config.state import TELEGRAM_FILTER
+from config.state import STATE
+
+_TELEGRAM_FILTER = STATE.get_telegram_filter()
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-logger.info(f"Palavras sendo monitoradas: {TELEGRAM_FILTER.get_words()}\n")
-logger.info(f"Canais sendo monitorados:\n{format_chat_list(TELEGRAM_FILTER.get_chats(), True)}\n")
+logger.info(f"Palavras sendo monitoradas: {_TELEGRAM_FILTER.get_words()}\n")
+logger.info(f"Canais sendo monitorados:\n{format_chat_list(_TELEGRAM_FILTER.get_chats(), True)}\n")
 
 
 async def main():
