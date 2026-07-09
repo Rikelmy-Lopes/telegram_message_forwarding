@@ -1,5 +1,6 @@
 import json
-from client.utils.chat import Chat
+
+from model.chat import Chat
 
 class TelegramFilter:
     _words: list[str]

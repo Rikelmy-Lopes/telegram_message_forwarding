@@ -1,7 +1,7 @@
 from telegram.ext import Application
 from telethon import TelegramClient
-from client.utils.chat import Chat
 from config.config import API_HASH, API_ID, TOKEN
+from model.chat import Chat
 from model.telegram_filter import TelegramFilter
 
 _words = [

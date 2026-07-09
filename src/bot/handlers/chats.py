@@ -1,12 +1,12 @@
 # pyright: reportOptionalSubscript=false
 # pyright: reportOptionalMemberAccess=false
 import logging
-from client.utils.chat import Chat
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, LinkPreviewOptions, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
 from client.handlers.handlers import update_on_new_messages_handler
 from client.utils.user import get_user_chats
 from bot.utils.state import new_state
+from model.chat import Chat
 from utils.text import format_chat_list
 from config.state import STATE
 

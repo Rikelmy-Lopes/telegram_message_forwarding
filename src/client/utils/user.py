@@ -1,5 +1,6 @@
-from client.utils.chat import Chat
+
 from config.state import STATE
+from model.chat import Chat
 
 _telegram_client = STATE.get_telegram_client()
 
