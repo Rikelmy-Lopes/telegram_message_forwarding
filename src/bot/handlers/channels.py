@@ -2,12 +2,14 @@
 # pyright: reportOptionalMemberAccess=false
 import logging
 from client.utils.chat import Chat
-import client.utils.user
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, LinkPreviewOptions, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
+from client.handlers.handlers import update_on_new_messages_handler
+from client.utils.user import get_user_chats
 from bot.utils.state import new_state
 from utils.text import format_chat_list
 from config.state import STATE
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -52,7 +54,6 @@ async def add_chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     valid_indexs = [i for i in indexs if i >= 0 and i < len(temp_chats)]
 
     if valid_indexs:
-        from client.handlers.handlers import update_on_new_messages_handler
 
         chats: list[Chat] = []
         for i in valid_indexs:
@@ -88,7 +89,6 @@ async def delete_chats_command(update: Update, context: ContextTypes.DEFAULT_TYP
         return ConversationState.DELETE_CHANNELS
 
     removed = TELEGRAM_FILTER.delete_chats(valid_indices)
-    from client.handlers.handlers import update_on_new_messages_handler
 
     update_on_new_messages_handler()
     
@@ -120,14 +120,14 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
         return ConversationState.MENU
 
     if selected_option == ConversationState.LIST_CHANNELS:
-        reply_text = f"Canais atualmente sendo monitorados:\n{format_chat_list(current_chats)}"
+        reply_text = f"Canais atualmente sendo monitorados:\n\n{format_chat_list(current_chats)}"
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
 
         return ConversationState.MENU
     
     elif selected_option == ConversationState.ADD_CHANNELS:
         global temp_chats
-        temp_chats = await client.utils.user.get_user_chats()
+        temp_chats = await get_user_chats()
 
         reply_text = (
             "➕ <b>Adicionar Canais</b>\n\n"

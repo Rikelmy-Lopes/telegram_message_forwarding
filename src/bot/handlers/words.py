@@ -97,7 +97,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
         return ConversationState.MENU
 
     elif selected_option == ConversationState.LIST_WORDS:
-        reply_text = f"Palavras atualmente ativas:\n{format_text_list(current_words)}"
+        reply_text = f"Palavras atualmente ativas:\n\n{format_text_list(current_words)}"
 
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP)
 

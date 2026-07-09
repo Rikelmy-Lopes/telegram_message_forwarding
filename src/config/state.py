@@ -1,4 +1,7 @@
+from telegram.ext import Application
+from telethon import TelegramClient
 from client.utils.chat import Chat
+from config.config import API_HASH, API_ID, TOKEN
 from model.telegram_filter import TelegramFilter
 
 _words = [
@@ -24,10 +27,14 @@ _chats = [
 
 class _State:
     _instance = None
+    _telegram_client: TelegramClient
+    _application: Application
     _telegram_filter: TelegramFilter
     _chat_id: None | int
 
     def __init__(self) -> None:
+        self._telegram_client = TelegramClient('sessao_monitor', API_ID, API_HASH)
+        self._application = Application.builder().token(token=TOKEN).build()
         self._telegram_filter = TelegramFilter(_words, _chats)
         self._chat_id = None
 
@@ -36,6 +43,12 @@ class _State:
             cls._instance = super().__new__(cls)
         return cls._instance
 
+    def get_telegram_client(self):
+        return self._telegram_client
+
+    def get_application(self):
+        return self._application
+    
     def get_telegram_filter(self):
         return self._telegram_filter
 
