@@ -21,10 +21,10 @@ async def on_new_messages(event: events.NewMessage.Event):
 
         for palavra in _telegram_filter.get_words():
             if palavra in texto_mensagem.lower():
-                logger.info(f"Palavra encontrada no canal {chat_title} - ({palavra})!")
+                logger.info(f"Palavra encontrada no chat {chat_title} - ({palavra})!")
                 
-                link_mensagem = f"https://t.me/{event.chat.username}/{message_id}" if event.chat and event.chat.username else "Canal Privado"
-                alerta = f"🚨 <b>Palavra-chave detectada! ({palavra})</b> \n\nCanal: {chat_title}\nTexto: {texto_mensagem}\nLink: {link_mensagem}"
+                link_mensagem = f"https://t.me/{event.chat.username}/{message_id}" if event.chat and event.chat.username else "Chat Privado"
+                alerta = f"🚨 <b>Palavra-chave detectada! ({palavra})</b> \n\nChat: {chat_title}\nTexto: {texto_mensagem}\nLink: {link_mensagem}"
                 
                 await send_message(alerta)
                 # send_notification(alerta, palavra)
