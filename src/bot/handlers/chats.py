@@ -17,16 +17,16 @@ TELEGRAM_FILTER = STATE.get_telegram_filter()
 
 class ConversationState:
     MENU = new_state()
-    LIST_CHANNELS = new_state()
-    ADD_CHANNELS = new_state()
-    DELETE_CHANNELS = new_state()
+    LIST_CHATS = new_state()
+    ADD_CHATS = new_state()
+    DELETE_CHATS = new_state()
     CANCEL = new_state()
 
 
 KEYBOARD = [
-    [InlineKeyboardButton('Visualizar Canais', callback_data=ConversationState.LIST_CHANNELS)],
-    [InlineKeyboardButton('Adicionar Canais', callback_data=ConversationState.ADD_CHANNELS)],
-    [InlineKeyboardButton('Excluir Canais', callback_data=ConversationState.DELETE_CHANNELS)],
+    [InlineKeyboardButton('Visualizar Chats', callback_data=ConversationState.LIST_CHATS)],
+    [InlineKeyboardButton('Adicionar Chats', callback_data=ConversationState.ADD_CHATS)],
+    [InlineKeyboardButton('Excluir Chats', callback_data=ConversationState.DELETE_CHATS)],
     [InlineKeyboardButton('Sair', callback_data=ConversationState.CANCEL)],
 ]
 BACK_KEYBOARD = [[InlineKeyboardButton('Voltar', callback_data=ConversationState.MENU)]]
@@ -57,17 +57,16 @@ async def add_chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
         chats: list[Chat] = []
         for i in valid_indexs:
-            print(f'ID: {temp_chats[i].get_id()} - Nome: {temp_chats[i].get_name()}')
             chats.append(temp_chats[i])
         
         TELEGRAM_FILTER.add_chats(chats)
 
         update_on_new_messages_handler()
 
-        reply_text = f"Canais atualizados com sucesso!\n<b>Lista atual:</b>\n{format_chat_list(TELEGRAM_FILTER.get_chats())}"
+        reply_text = f"Chats atualizados com sucesso!\n<b>Lista atual:</b>\n{format_chat_list(TELEGRAM_FILTER.get_chats())}"
         logger.info(reply_text)
     else:
-        reply_text = "Nenhuma canal válido enviado."
+        reply_text = "Nenhuma chat válido enviado."
 
     await update.message.reply_text(reply_text, parse_mode='HTML', link_preview_options=LINK_PREVIEW_OPTIONS)
     await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
@@ -86,7 +85,7 @@ async def delete_chats_command(update: Update, context: ContextTypes.DEFAULT_TYP
         reply_text = f"Erro ao deletar os chats! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_chat_list(current_chats)}"
         await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
 
-        return ConversationState.DELETE_CHANNELS
+        return ConversationState.DELETE_CHATS
 
     removed = TELEGRAM_FILTER.delete_chats(valid_indices)
 
@@ -119,41 +118,41 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
         
         return ConversationState.MENU
 
-    if selected_option == ConversationState.LIST_CHANNELS:
-        reply_text = f"Canais atualmente sendo monitorados:\n\n{format_chat_list(current_chats)}"
+    if selected_option == ConversationState.LIST_CHATS:
+        reply_text = f"Chats atualmente sendo monitorados:\n\n{format_chat_list(current_chats)}"
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
 
         return ConversationState.MENU
     
-    elif selected_option == ConversationState.ADD_CHANNELS:
+    elif selected_option == ConversationState.ADD_CHATS:
         global temp_chats
         temp_chats = await get_user_chats()
 
         reply_text = (
-            "➕ <b>Adicionar Canais</b>\n\n"
-            "Envie o número dos canais que deseja adicionar separadas por ponto e vírgula (;).\n\n"
+            "➕ <b>Adicionar Chats</b>\n\n"
+            "Envie o número dos chats que deseja adicionar separadas por ponto e vírgula (;).\n\n"
             "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
             f"Chats disponiveis:\n{format_chat_list(temp_chats)}"
         )
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
         
-        return ConversationState.ADD_CHANNELS
+        return ConversationState.ADD_CHATS
     
-    elif selected_option == ConversationState.DELETE_CHANNELS:
+    elif selected_option == ConversationState.DELETE_CHATS:
         if not current_chats:
-            await query.edit_message_text("Não há canais para deletar!", reply_markup=REPLY_MARKUP)
+            await query.edit_message_text("Não há chats para deletar!", reply_markup=REPLY_MARKUP)
 
             return ConversationState.MENU
         
         reply_text = (
-            "🗑️ <b>Excluir Canais</b>\n\n"
-            "Envie o número dos canais que deseja remover separadas por <code>;</code>.\n\n"
+            "🗑️ <b>Excluir Chats</b>\n\n"
+            "Envie o número dos chats que deseja remover separadas por <code>;</code>.\n\n"
             "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
             f"<b>Lista atual:</b>\n{format_chat_list(current_chats)}"
             )
         await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
 
-        return ConversationState.DELETE_CHANNELS
+        return ConversationState.DELETE_CHATS
     
     elif selected_option == ConversationState.CANCEL:
         await query.edit_message_text("Até mais!")
@@ -165,21 +164,21 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
 
 
-channels_handler = ConversationHandler(
-    entry_points=[CommandHandler('channels', chats_command)],
+chats_handler = ConversationHandler(
+    entry_points=[CommandHandler('chats', chats_command)],
     states={
         ConversationState.MENU: [CallbackQueryHandler(handle_menu_selection)],
-        ConversationState.ADD_CHANNELS: [
+        ConversationState.ADD_CHATS: [
             CallbackQueryHandler(handle_menu_selection),
             MessageHandler(filters.TEXT & ~filters.COMMAND, add_chats_command)
             ],
-        ConversationState.DELETE_CHANNELS: [
+        ConversationState.DELETE_CHATS: [
             CallbackQueryHandler(handle_menu_selection),
             MessageHandler(filters.TEXT & ~filters.COMMAND, delete_chats_command)
             ],
     },
     fallbacks=[
-        CommandHandler('channels', chats_command),
+        CommandHandler('chats', chats_command),
         CommandHandler('cancel', cancel_command)
         ]
 )
