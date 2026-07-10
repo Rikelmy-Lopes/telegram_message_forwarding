@@ -44,7 +44,7 @@ async def add_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     if words_list:
         TELEGRAM_FILTER.add_words(words_list)
-        reply_text = f"Palavras atualizadas com sucesso!\n<b>Lista atual:</b>\n{format_text_list(TELEGRAM_FILTER.get_words())}"
+        reply_text = f"Palavras atualizadas com sucesso!\n\n<b>Lista atual:</b>\n{format_text_list(TELEGRAM_FILTER.get_words())}"
         logger.info(reply_text)
     else:
         reply_text = "Nenhuma palavra válida enviada."

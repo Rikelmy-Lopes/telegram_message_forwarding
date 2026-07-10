@@ -63,7 +63,7 @@ async def add_chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
         update_on_new_messages_handler()
 
-        reply_text = f"Chats atualizados com sucesso!\n<b>Lista atual:</b>\n{format_chat_list(TELEGRAM_FILTER.get_chats())}"
+        reply_text = f"Chats atualizados com sucesso!\n\n<b>Lista atual:</b>\n{format_chat_list(TELEGRAM_FILTER.get_chats())}"
         logger.info(reply_text)
     else:
         reply_text = "Nenhuma chat válido enviado."
