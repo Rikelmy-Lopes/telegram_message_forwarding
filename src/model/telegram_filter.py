@@ -5,7 +5,7 @@ from model.chat import Chat
 class TelegramFilter:
     _words: list[str]
     _chats: list[Chat]
-    _chat_ids: list[int]
+    _chat_ids: set[int]
 
     def __init__(self, words: list[str] = [], chats: list[Chat] = []) -> None:
         self._words = words
@@ -25,8 +25,7 @@ class TelegramFilter:
                 continue
 
             self._chats.append(chat)
-        
-        self._update_chat_ids()
+            self._chat_ids.add(chat.get_id())
 
 
     def delete_words(self, indexs: list[int]) -> list[str]:
@@ -42,18 +41,18 @@ class TelegramFilter:
         removed: list[Chat] = []
 
         for index in sorted(indexs, reverse=True):
-            removed.append(self._chats.pop(index))
+            temp_chat = self._chats.pop(index)
+            self._chat_ids.remove(temp_chat.get_id())
 
-        if removed:
-            self._update_chat_ids()
+            removed.append(temp_chat)
 
         return removed
 
     def _is_chat_added(self, other_chat: Chat) -> bool:
-        return any(chat.get_id() == other_chat.get_id() for chat in self._chats)
+        return other_chat.get_id() in self._chat_ids
 
     def _update_chat_ids(self) -> None:
-        self._chat_ids = list(map(lambda chat: chat.get_id(), self._chats))
+        self._chat_ids = set(map(lambda chat: chat.get_id(), self._chats))
 
     def get_words(self) -> list[str]:
         return self._words
@@ -61,13 +60,13 @@ class TelegramFilter:
     def get_chats(self) -> list[Chat]:
         return self._chats
 
-    def get_chats_id(self) -> list[int]:
+    def get_chats_id(self) -> set[int]:
         return self._chat_ids
 
     def to_json(self) -> str:
         return json.dumps(
             self,
-            default=lambda o: o.__dict__, 
+            default=lambda o: list(o) if isinstance(o, set) else o.__dict__, 
             sort_keys=True,
             indent=4
             )
