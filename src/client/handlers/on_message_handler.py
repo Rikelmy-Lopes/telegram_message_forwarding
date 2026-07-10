@@ -31,4 +31,4 @@ async def on_new_messages(event: events.NewMessage.Event):
                 break
 
     except Exception as e:
-        logger.exception(e)
+        logger.error(e)

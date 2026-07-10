@@ -2,6 +2,7 @@
 # pyright: reportOptionalMemberAccess=false
 import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, LinkPreviewOptions, Update
+from telegram.error import BadRequest
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
 from client.handlers.handlers import update_on_new_messages_handler
 from client.utils.user import get_user_chats
@@ -47,54 +48,64 @@ async def chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 
 
 async def add_chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    user_text = update.message.text or ""
-    global temp_chats
+    try:
+        user_text = update.message.text or ""
+        global temp_chats
 
-    indexs = [int(i.strip()) for i in user_text.split(';') if i.strip().isdigit()]
-    valid_indexs = [i for i in indexs if i >= 0 and i < len(temp_chats)]
+        indexs = [int(i.strip()) for i in user_text.split(';') if i.strip().isdigit()]
+        valid_indexs = [i for i in indexs if i >= 0 and i < len(temp_chats)]
 
-    if valid_indexs:
+        if valid_indexs:
 
-        chats: list[Chat] = []
-        for i in valid_indexs:
-            chats.append(temp_chats[i])
-        
-        TELEGRAM_FILTER.add_chats(chats)
+            chats: list[Chat] = []
+            for i in valid_indexs:
+                chats.append(temp_chats[i])
+            
+            TELEGRAM_FILTER.add_chats(chats)
 
-        update_on_new_messages_handler()
+            update_on_new_messages_handler()
 
-        reply_text = f"Chats atualizados com sucesso!\n\n<b>Lista atual:</b>\n{format_chat_list(TELEGRAM_FILTER.get_chats())}"
-        logger.info(reply_text)
-    else:
-        reply_text = "Nenhuma chat válido enviado."
+            reply_text = f"Chats atualizados com sucesso!\n\n<b>Lista atual:</b>\n{format_chat_list(TELEGRAM_FILTER.get_chats())}"
+            logger.info(reply_text)
+        else:
+            reply_text = "Nenhuma chat válido enviado."
 
-    await update.message.reply_text(reply_text, parse_mode='HTML', link_preview_options=LINK_PREVIEW_OPTIONS)
-    await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
+        await update.message.reply_text(reply_text, parse_mode='HTML', link_preview_options=LINK_PREVIEW_OPTIONS)
+        await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
+    except Exception as e:
+        logger.error(e)
+        await update.message.reply_text(f'Algo deu errado, tente novamente!\nErro: {str(e)}', parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)  # type: ignore
+        return ConversationState.ADD_CHATS
 
     return ConversationState.MENU
 
 
 async def delete_chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    user_text = update.message.text or ""
-    current_chats = TELEGRAM_FILTER.get_chats()
+    try:
+        user_text = update.message.text or ""
+        current_chats = TELEGRAM_FILTER.get_chats()
 
-    indexs = [int(i.strip()) for i in user_text.split(';') if i.strip().isdigit()]
-    valid_indices = [i for i in indexs if i >= 0 and i < len(current_chats)]
+        indexs = [int(i.strip()) for i in user_text.split(';') if i.strip().isdigit()]
+        valid_indices = [i for i in indexs if i >= 0 and i < len(current_chats)]
 
-    if not valid_indices:
-        reply_text = f"Erro ao deletar os chats! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_chat_list(current_chats)}"
-        await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
+        if not valid_indices:
+            reply_text = f"Erro ao deletar os chats! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_chat_list(current_chats)}"
+            await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
 
+            return ConversationState.DELETE_CHATS
+
+        removed = TELEGRAM_FILTER.delete_chats(valid_indices)
+
+        update_on_new_messages_handler()
+        
+        logger.info(f"Chats removidos:\n{format_chat_list(removed)}")
+
+        await update.message.reply_text("Os chats selecionados foram deletadas com sucesso! 🎉", parse_mode='HTML')
+        await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
+    except Exception as e:
+        logger.error(e)
+        await update.message.reply_text(f'Algo deu errado, tente novamente!\nErro: {str(e)}', parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
         return ConversationState.DELETE_CHATS
-
-    removed = TELEGRAM_FILTER.delete_chats(valid_indices)
-
-    update_on_new_messages_handler()
-    
-    logger.info(f"Chats removidos:\n{format_chat_list(removed)}")
-
-    await update.message.reply_text("Os chats selecionados foram deletadas com sucesso! 🎉", parse_mode='HTML')
-    await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
 
     return ConversationState.MENU
 
@@ -109,62 +120,71 @@ async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
-    await query.answer()
-    selected_option = int(query.data) # type: ignore
-    current_chats = TELEGRAM_FILTER.get_chats()
+    try:
+        await query.answer()
+        selected_option = int(query.data) # type: ignore
+        current_chats = TELEGRAM_FILTER.get_chats()
 
-    if selected_option == ConversationState.MENU:
-        await query.edit_message_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
-        
-        return ConversationState.MENU
+        if selected_option == ConversationState.MENU:
+            await query.edit_message_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
+            
+            return ConversationState.MENU
 
-    if selected_option == ConversationState.LIST_CHATS:
-        if not current_chats:
-            await query.edit_message_text("Nenhum chat sendo monitorado", parse_mode='HTML', reply_markup=REPLY_MARKUP)
+        if selected_option == ConversationState.LIST_CHATS:
+            if not current_chats:
+                await query.edit_message_text("Nenhum chat sendo monitorado", parse_mode='HTML', reply_markup=REPLY_MARKUP)
+
+                return ConversationState.MENU
+            
+            reply_text = f"Chats atualmente sendo monitorados:\n\n{format_chat_list(current_chats)}"
+            await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
 
             return ConversationState.MENU
         
-        reply_text = f"Chats atualmente sendo monitorados:\n\n{format_chat_list(current_chats)}"
-        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
+        elif selected_option == ConversationState.ADD_CHATS:
+            global temp_chats
+            temp_chats = await get_user_chats()
 
-        return ConversationState.MENU
-    
-    elif selected_option == ConversationState.ADD_CHATS:
-        global temp_chats
-        temp_chats = await get_user_chats()
-
-        reply_text = (
-            "➕ <b>Adicionar Chats</b>\n\n"
-            "Envie o número dos chats que deseja adicionar separadas por ponto e vírgula (;).\n\n"
-            "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
-            f"Chats disponiveis:\n{format_chat_list(temp_chats)}"
-        )
-        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
-        
-        return ConversationState.ADD_CHATS
-    
-    elif selected_option == ConversationState.DELETE_CHATS:
-        if not current_chats:
-            await query.edit_message_text("Não há chats para deletar!", reply_markup=REPLY_MARKUP)
-
-            return ConversationState.MENU
-        
-        reply_text = (
-            "🗑️ <b>Excluir Chats</b>\n\n"
-            "Envie o número dos chats que deseja remover separadas por <code>;</code>.\n\n"
-            "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
-            f"<b>Lista atual:</b>\n{format_chat_list(current_chats)}"
+            reply_text = (
+                "➕ <b>Adicionar Chats</b>\n\n"
+                "Envie o número dos chats que deseja adicionar separadas por ponto e vírgula (;).\n\n"
+                "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
+                f"Chats disponiveis:\n{format_chat_list(temp_chats)}"
             )
-        await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
+            await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
+            
+            return ConversationState.ADD_CHATS
+        
+        elif selected_option == ConversationState.DELETE_CHATS:
+            if not current_chats:
+                await query.edit_message_text("Não há chats para deletar!", reply_markup=REPLY_MARKUP)
 
-        return ConversationState.DELETE_CHATS
+                return ConversationState.MENU
+            
+            reply_text = (
+                "🗑️ <b>Excluir Chats</b>\n\n"
+                "Envie o número dos chats que deseja remover separadas por <code>;</code>.\n\n"
+                "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
+                f"<b>Lista atual:</b>\n{format_chat_list(current_chats)}"
+                )
+            await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
+
+            return ConversationState.DELETE_CHATS
+        
+        elif selected_option == ConversationState.CANCEL:
+            await query.edit_message_text("Até mais!")
+
+            return ConversationHandler.END
     
-    elif selected_option == ConversationState.CANCEL:
-        await query.edit_message_text("Até mais!")
+    except BadRequest as e:
+        logger.error(e)
+        return ConversationState.MENU
+    except Exception as e:
+        logger.error(e)
+        await query.edit_message_text(f'Algo deu errado, tente novamente!\nErro: {str(e)}', reply_markup=REPLY_MARKUP)
+        return ConversationState.MENU
 
-        return ConversationHandler.END
     
-
     return ConversationHandler.END
 
 
