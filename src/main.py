@@ -6,6 +6,7 @@ from client.client import set_event_handlers
 from client.utils.user import set_chat_id
 from utils.text import format_chat_list, format_text_list
 from config.state import STATE
+from utils.utils import error_handler
 
 _TELEGRAM_FILTER = STATE.get_telegram_filter()
 _telegram_client = STATE.get_telegram_client()
@@ -31,7 +32,7 @@ async def main():
     await set_chat_id()
 
     if _application.updater:
-        await _application.updater.start_polling()
+        await _application.updater.start_polling(error_callback=error_handler)
 
     logger.info("Monitor iniciado... Pressione Ctrl+C para parar.")
 

@@ -1,5 +1,7 @@
 import logging
 import os
+from httpx import NetworkError
+from telegram.error import TelegramError
 from winotify import Notification
 
 logger = logging.getLogger(__name__)
@@ -23,3 +25,10 @@ def send_notification(msg: str, palavra: str):
         duration="short"
     )
     notificacao.show()
+
+
+def error_handler(error: TelegramError):
+    if isinstance(error, NetworkError):
+        logger.error(f"Error while polling updates: {error.message}")
+    else:
+        logger.exception(error)
