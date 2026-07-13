@@ -8,7 +8,7 @@ from client.handlers.handlers import update_on_new_messages_handler
 from client.utils.user import get_user_chats
 from bot.utils.state import new_state
 from model.chat import Chat
-from utils.text import format_chat_list
+from utils.text import format_chat_list, format_chat_list_with_exclusion
 from config.state import STATE
 
 logger = logging.getLogger(__name__)
@@ -145,11 +145,14 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
             global temp_chats
             temp_chats = await get_user_chats()
 
+            current_chat_ids = TELEGRAM_FILTER.get_chats_id()
+
             reply_text = (
                 "➕ <b>Adicionar Chats</b>\n\n"
                 "Envie o número dos chats que deseja adicionar separadas por ponto e vírgula (;).\n\n"
                 "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
-                f"Chats disponiveis:\n{format_chat_list(temp_chats)}"
+                "Obs: Chats <s>riscados</s> já estão sendo monitorados.\n\n"
+                f"Chats disponiveis:\n{format_chat_list_with_exclusion(temp_chats, current_chat_ids)}"
             )
             await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
             
