@@ -7,7 +7,7 @@ from config.state import STATE
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-_telegram_filter = STATE.get_telegram_filter()
+_TELEGRAM_FILTER = STATE.get_telegram_filter()
 
 async def on_new_messages(event: events.NewMessage.Event):
     try:
@@ -20,7 +20,7 @@ async def on_new_messages(event: events.NewMessage.Event):
         message_id = event.message.id
         texto_comparacao = texto_mensagem.lower()
 
-        for palavra in _telegram_filter.get_words():
+        for palavra in _TELEGRAM_FILTER.get_words():
             if palavra in texto_comparacao:
                 logger.info(f"Palavra encontrada no chat {chat_title} - ({palavra})!")
                 
