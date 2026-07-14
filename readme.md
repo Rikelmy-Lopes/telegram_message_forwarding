@@ -1,4 +1,4 @@
-# Telegram Forwarder Bot
+# Telegram Message Forwarding
 
 Bot do Telegram para encaminhamento e filtragem automática de mensagens de canais ou grupos.
 
