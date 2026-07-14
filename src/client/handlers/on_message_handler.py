@@ -18,9 +18,10 @@ async def on_new_messages(event: events.NewMessage.Event):
         
         chat_title = event.chat.title if event.chat and event.chat.title else 'Chat Desconhecido'
         message_id = event.message.id
+        texto_comparacao = texto_mensagem.lower()
 
         for palavra in _telegram_filter.get_words():
-            if palavra in texto_mensagem.lower():
+            if palavra in texto_comparacao:
                 logger.info(f"Palavra encontrada no chat {chat_title} - ({palavra})!")
                 
                 link_mensagem = f"https://t.me/{event.chat.username}/{message_id}" if event.chat and event.chat.username else "Chat Privado"
