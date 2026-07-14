@@ -19,6 +19,7 @@ Para iniciar o bot, execute o seguinte comando no terminal:
 ```bash
 python ./src/main.py
 ```
+Na primeira execução, o terminal solicitará que você insira o seu número de telefone e o código de verificação enviado pelo Telegram para autorizar a conexão.
 
 ---
 
