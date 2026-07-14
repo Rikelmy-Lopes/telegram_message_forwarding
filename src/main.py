@@ -1,38 +1,48 @@
 # pyright: reportGeneralTypeIssues=false
 import asyncio
 import logging
-import client.utils.user
-from client.client import telegram_client
-from bot.bot import application
-from config.state import TELEGRAM_FILTER
+from bot.bot import set_application_handlers
+from client.client import set_event_handlers
+from client.utils.user import set_chat_id
+from utils.text import format_chat_list, format_text_list
+from config.state import STATE
+from utils.utils import error_handler
+
+_TELEGRAM_FILTER = STATE.get_telegram_filter()
+_telegram_client = STATE.get_telegram_client()
+_application = STATE.get_application()
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-logger.info(f"Palavras sendo monitoradas: {TELEGRAM_FILTER.get_words()}\n")
-logger.info(f"Canais sendo monitorados: {TELEGRAM_FILTER.get_channels()}\n")
+logger.info(f"Palavras sendo monitoradas:\n {format_text_list(_TELEGRAM_FILTER.get_words())}\n")
+logger.info(f"Chats sendo monitorados:\n{format_chat_list(_TELEGRAM_FILTER.get_chats(), True)}\n")
 
 
 async def main():
-    await telegram_client.start()
+    set_application_handlers()
+    set_event_handlers()
+    
+    await _telegram_client.start()
 
-    await client.utils.user.set_chat_id()
+    await _application.initialize()
+    await _application.start()
 
-    await application.initialize()
-    await application.start()
+    await set_chat_id()
 
-    if application.updater:
-        await application.updater.start_polling()
+    if _application.updater:
+        await _application.updater.start_polling(error_callback=error_handler)
 
     logger.info("Monitor iniciado... Pressione Ctrl+C para parar.")
 
-    await telegram_client.run_until_disconnected()
+    await _telegram_client.run_until_disconnected()
     
-    if application.updater:
-        await application.updater.stop()
+    if _application.updater:
+        await _application.updater.stop()
         
-    await application.stop()
-    await application.shutdown()
+    await _application.stop()
+    await _application.shutdown()
 
 
 

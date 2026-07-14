@@ -1,7 +1,9 @@
-from telethon import TelegramClient, events
+from telethon import events
 from client.handlers.on_message_handler import on_new_messages
-from config.config import API_HASH, API_ID
-from config.state import TELEGRAM_FILTER
+from config.state import STATE
 
-telegram_client = TelegramClient('sessao_monitor', API_ID, API_HASH)
-telegram_client.add_event_handler(on_new_messages, events.NewMessage(incoming=True, chats=TELEGRAM_FILTER.get_channels()))
+
+def set_event_handlers():
+    _telegram_client = STATE.get_telegram_client()
+
+    _telegram_client.add_event_handler(on_new_messages, events.NewMessage(incoming=True, chats=STATE.get_telegram_filter().get_chats_id()))

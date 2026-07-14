@@ -1,5 +1,6 @@
-sessao_monitor.session
-sessao_monitor.session-journal
+*.session
+*.session-journal
 .env
 **/__pycache__/
 app.log
+telegram_filter.json
