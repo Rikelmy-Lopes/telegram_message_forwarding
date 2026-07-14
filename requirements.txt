@@ -1,3 +1,4 @@
+annotated-types==0.7.0
 anyio==4.14.1
 certifi==2026.6.17
 dotenv==0.9.9
@@ -7,8 +8,12 @@ httpx==0.28.1
 idna==3.18
 pyaes==1.6.1
 pyasn1==0.6.3
+pydantic==2.13.4
+pydantic_core==2.46.4
 python-dotenv==1.2.2
 python-telegram-bot==22.8
 rsa==4.9.1
 Telethon==1.44.0
+typing-inspection==0.4.2
+typing_extensions==4.16.0
 winotify==1.1.0

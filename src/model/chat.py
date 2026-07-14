@@ -1,14 +1,16 @@
 
-class Chat:
-    _id: int
-    _name: str
+from pydantic import BaseModel
 
-    def __init__(self, id: int, name: str) -> None:
-        self._id = id
-        self._name = name
+
+class Chat(BaseModel):
+    id: int
+    name: str
+
+    def __init__(self, id: int, name: str, **kwargs) -> None:
+        super().__init__(id=id, name=name, **kwargs)
 
     def get_id(self) -> int:
-        return self._id
+        return self.id
 
     def get_name(self) -> str:
-        return self._name
+        return self.name

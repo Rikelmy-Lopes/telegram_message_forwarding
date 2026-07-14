@@ -37,7 +37,7 @@ class _State:
     def __init__(self) -> None:
         self._telegram_client = TelegramClient('sessao_monitor', API_ID, API_HASH)
         self._application = Application.builder().token(token=TOKEN).build()
-        self._telegram_filter = TelegramFilter(_words, _chats)
+        self._telegram_filter = TelegramFilter.load(_words, _chats)
         self._chat_id = None
 
     def __new__(cls):

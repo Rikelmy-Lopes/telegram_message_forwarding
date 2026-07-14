@@ -62,6 +62,7 @@ async def add_chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
                 chats.append(temp_chats[i])
             
             TELEGRAM_FILTER.add_chats(chats)
+            TELEGRAM_FILTER.save()
 
             update_on_new_messages_handler()
 
@@ -95,6 +96,7 @@ async def delete_chats_command(update: Update, context: ContextTypes.DEFAULT_TYP
             return ConversationState.DELETE_CHATS
 
         removed = TELEGRAM_FILTER.delete_chats(valid_indices)
+        TELEGRAM_FILTER.save()
 
         update_on_new_messages_handler()
         

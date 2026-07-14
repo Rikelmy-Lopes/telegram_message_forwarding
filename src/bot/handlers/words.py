@@ -46,6 +46,7 @@ async def add_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
         if words_list:
             TELEGRAM_FILTER.add_words(words_list)
+            TELEGRAM_FILTER.save()
             reply_text = f"Palavras atualizadas com sucesso!\n\n<b>Lista atual:</b>\n{format_text_list(TELEGRAM_FILTER.get_words())}"
             logger.info(reply_text)
         else:
@@ -76,6 +77,7 @@ async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYP
             return ConversationState.DELETE_WORDS
 
         removed = TELEGRAM_FILTER.delete_words(valid_indices)
+        TELEGRAM_FILTER.save()
         logger.info(f"Palavras removidas:\n{format_text_list(removed)}")
 
         await update.message.reply_text("As palavras selecionadas foram deletadas com sucesso! 🎉", parse_mode='HTML')

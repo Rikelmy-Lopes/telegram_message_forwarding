@@ -1,22 +1,22 @@
-import json
-
+from pydantic import BaseModel
 from model.chat import Chat
 
-class TelegramFilter:
-    _words: list[str]
-    _chats: list[Chat]
-    _chat_ids: set[int]
+_FILE_NAME = 'telegram_filter.json'
 
-    def __init__(self, words: list[str] = [], chats: list[Chat] = []) -> None:
-        self._words = words
-        self._chats = chats
+class TelegramFilter(BaseModel):
+    words: list[str]
+    chats: list[Chat]
+    chat_ids: set[int]
+
+    def __init__(self, words: list[str] = [], chats: list[Chat] = [], chat_ids: set[int] = set(), **kwargs) -> None:
+        super().__init__(words=words, chats=chats, chat_ids=chat_ids, **kwargs)
         self._update_chat_ids()
 
 
     def add_words(self, words: list[str]):
         for word in words:
-            if word not in self._words:
-                self._words.append(word)
+            if word not in self.words:
+                self.words.append(word)
 
 
     def add_chats(self, chats: list[Chat]):
@@ -24,15 +24,15 @@ class TelegramFilter:
             if self._is_chat_added(chat): 
                 continue
 
-            self._chats.append(chat)
-            self._chat_ids.add(chat.get_id())
+            self.chats.append(chat)
+            self.chat_ids.add(chat.get_id())
 
 
     def delete_words(self, indexs: list[int]) -> list[str]:
         removed: list[str] = []
 
         for index in sorted(indexs, reverse=True):
-            removed.append(self._words.pop(index))
+            removed.append(self.words.pop(index))
 
         return removed
             
@@ -41,33 +41,39 @@ class TelegramFilter:
         removed: list[Chat] = []
 
         for index in sorted(indexs, reverse=True):
-            temp_chat = self._chats.pop(index)
-            self._chat_ids.remove(temp_chat.get_id())
+            temp_chat = self.chats.pop(index)
+            self.chat_ids.remove(temp_chat.get_id())
 
             removed.append(temp_chat)
 
         return removed
 
     def _is_chat_added(self, other_chat: Chat) -> bool:
-        return other_chat.get_id() in self._chat_ids
+        return other_chat.get_id() in self.chat_ids
 
     def _update_chat_ids(self) -> None:
-        self._chat_ids = set(map(lambda chat: chat.get_id(), self._chats))
+        self.chat_ids = set(map(lambda chat: chat.get_id(), self.chats))
 
     def get_words(self) -> list[str]:
-        return self._words
+        return self.words
 
     def get_chats(self) -> list[Chat]:
-        return self._chats
+        return self.chats
 
     def get_chats_id(self) -> set[int]:
-        return self._chat_ids
+        return self.chat_ids
 
-    def to_json(self) -> str:
-        return json.dumps(
-            self,
-            default=lambda o: list(o) if isinstance(o, set) else o.__dict__, 
-            sort_keys=True,
-            indent=4
-            )
+    def save(self):
+        with open(_FILE_NAME, 'w') as f:
+            f.write(self.model_dump_json(ensure_ascii=True, indent=4))
+
+    @classmethod
+    def load(cls, words: list[str] = [], chats: list[Chat] = []) :
+        try:
+            with open(_FILE_NAME, 'r', encoding='utf-8') as f:
+                data = f.read()
+
+                return cls.model_validate_json(data)
+        except FileNotFoundError:
+            return cls(words, chats)
     
