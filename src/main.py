@@ -4,7 +4,7 @@ import logging
 from bot.bot import set_application_handlers
 from client.client import set_event_handlers
 from client.utils.user import set_chat_id
-from utils.text import format_chat_list, format_text_list
+from utils.text import format_chat_list, format_word_filter
 from config.state import STATE
 from utils.utils import error_handler
 
@@ -16,7 +16,7 @@ _application = STATE.get_application()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-# logger.info(f"Palavras sendo monitoradas:\n {format_text_list(_TELEGRAM_FILTER.get_words())}\n")
+logger.info(f"Palavras sendo monitoradas:\n {format_word_filter(_TELEGRAM_FILTER.get_words())}\n")
 logger.info(f"Chats sendo monitorados:\n{format_chat_list(_TELEGRAM_FILTER.get_chats(), True)}\n")
 
 
@@ -50,4 +50,3 @@ try:
     asyncio.run(main())
 except KeyboardInterrupt:
     logger.warning("Parando execução...")
-    

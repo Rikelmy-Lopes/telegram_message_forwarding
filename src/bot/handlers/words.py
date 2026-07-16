@@ -5,7 +5,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.error import BadRequest
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
 from bot.utils.state import new_state
-from utils.text import format_text_list
+from utils.text import format_word_filter, parse_word_filters
 from config.state import STATE
 
 logger = logging.getLogger(__name__)
@@ -42,12 +42,12 @@ async def add_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     try:
         user_text = update.message.text or ""
 
-        words_list = [w.strip().lower() for w in user_text.split(';') if w.strip()]
+        word_filters = parse_word_filters(user_text)
 
-        if words_list:
-            TELEGRAM_FILTER.add_words(words_list)
+        if word_filters:
+            TELEGRAM_FILTER.add_words(word_filters)
             TELEGRAM_FILTER.save()
-            reply_text = f"Palavras atualizadas com sucesso!\n\n<b>Lista atual:</b>\n{format_text_list(TELEGRAM_FILTER.get_words())}"
+            reply_text = f"Palavras atualizadas com sucesso!\n\n<b>Lista atual:</b>\n{format_word_filter(TELEGRAM_FILTER.get_words())}"
             logger.info(reply_text)
         else:
             reply_text = "Nenhuma palavra válida enviada."
@@ -71,14 +71,14 @@ async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYP
         valid_indices = [i for i in indexs if i >= 0 and i < len(current_words)]
 
         if not valid_indices:
-            reply_text = f"Erro ao deletar as palavras! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_text_list(current_words)}"
+            reply_text = f"Erro ao deletar as palavras! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_word_filter(current_words)}"
             await update.message.reply_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
 
             return ConversationState.DELETE_WORDS
 
         removed = TELEGRAM_FILTER.delete_words(valid_indices)
         TELEGRAM_FILTER.save()
-        logger.info(f"Palavras removidas:\n{format_text_list(removed)}")
+        logger.info(f"Palavras removidas:\n{format_word_filter(removed)}")
 
         await update.message.reply_text("As palavras selecionadas foram deletadas com sucesso! 🎉", parse_mode='HTML')
         await update.message.reply_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
@@ -116,7 +116,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
                 return ConversationState.MENU
             
-            reply_text = f"Palavras atualmente ativas:\n\n{format_text_list(current_words)}"
+            reply_text = f"Palavras atualmente ativas:\n\n{format_word_filter(current_words)}"
 
             await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP)
 
@@ -142,7 +142,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
                 "🗑️ <b>Excluir Palavras</b>\n\n"
                 "Envie o número das palavras que deseja remover separadas por <code>;</code>.\n\n"
                 "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
-                f"<b>Lista atual:</b>\n{format_text_list(current_words)}"
+                f"<b>Lista atual:</b>\n{format_word_filter(current_words)}"
                 )
             await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
 

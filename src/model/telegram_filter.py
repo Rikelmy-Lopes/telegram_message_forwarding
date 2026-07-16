@@ -19,6 +19,8 @@ class TelegramFilter(BaseModel):
 
             if word_filter not in self.words:
                 self.words.append(word_filter)
+        
+        self.words = sorted(self.words)
 
 
     def add_chats(self, chats: list[Chat]):
@@ -48,6 +50,7 @@ class TelegramFilter(BaseModel):
 
             removed.append(temp_chat)
 
+        self.words = sorted(self.words)
         return removed
 
     def _is_chat_added(self, other_chat: Chat) -> bool:
