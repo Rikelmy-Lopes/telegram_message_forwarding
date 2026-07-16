@@ -4,8 +4,11 @@ from model.word_filter import WordFilter
 
 
 def format_word_filter(word_filters: list[WordFilter]):
-    return "".join(f"<b>{index}</b> - {text.get_value()}\n" for index, text in enumerate(word_filters))
-
+    return "".join(
+        f"<b>{index}</b> - {text.get_value()}\n"
+        if isinstance(text.get_value(), str) else
+        f"<b>{index}</b> - [{", ".join(text.get_value())}]\n"
+        for index, text in enumerate(word_filters))
 
 
 def format_chat_list(chats: list[Chat], use_id: bool = False):

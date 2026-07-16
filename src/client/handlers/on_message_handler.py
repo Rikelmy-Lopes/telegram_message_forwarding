@@ -24,7 +24,7 @@ async def on_new_messages(event: events.NewMessage.Event):
         message_id = event.message.id
         texto_comparacao = texto_mensagem.lower()
 
-        for word_filter in _TELEGRAM_FILTER.get_words():
+        for word_filter in _TELEGRAM_FILTER.get_word_filters():
             value = word_filter.get_value()
 
             words = [value] if isinstance(value, str) else value
@@ -32,7 +32,7 @@ async def on_new_messages(event: events.NewMessage.Event):
             is_all_finded = all(contains_word(word, texto_comparacao) for word in words)
 
             if is_all_finded:
-                words_str = value if isinstance(value, str) else ','.join(value)
+                words_str = value if isinstance(value, str) else ', '.join(value)
 
                 logger.info(f"Palavra encontrada no chat {chat_title} - ({words_str})!")
                     

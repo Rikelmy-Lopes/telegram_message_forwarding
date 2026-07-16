@@ -16,7 +16,7 @@ _application = STATE.get_application()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-logger.info(f"Palavras sendo monitoradas:\n {format_word_filter(_TELEGRAM_FILTER.get_words())}\n")
+logger.info(f"Palavras sendo monitoradas:\n {format_word_filter(_TELEGRAM_FILTER.get_word_filters())}\n")
 logger.info(f"Chats sendo monitorados:\n{format_chat_list(_TELEGRAM_FILTER.get_chats(), True)}\n")
 
 

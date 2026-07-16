@@ -45,9 +45,9 @@ async def add_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         word_filters = parse_word_filters(user_text)
 
         if word_filters:
-            TELEGRAM_FILTER.add_words(word_filters)
+            TELEGRAM_FILTER.add_word_filters(word_filters)
             TELEGRAM_FILTER.save()
-            reply_text = f"Palavras atualizadas com sucesso!\n\n<b>Lista atual:</b>\n{format_word_filter(TELEGRAM_FILTER.get_words())}"
+            reply_text = f"Palavras atualizadas com sucesso!\n\n<b>Lista atual:</b>\n{format_word_filter(TELEGRAM_FILTER.get_word_filters())}"
             logger.info(reply_text)
         else:
             reply_text = "Nenhuma palavra válida enviada."
@@ -65,7 +65,7 @@ async def add_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     try:
         user_text = update.message.text or ""
-        current_words = TELEGRAM_FILTER.get_words()
+        current_words = TELEGRAM_FILTER.get_word_filters()
 
         indexs = [int(i.strip()) for i in user_text.split(';') if i.strip().isdigit()]
         valid_indices = [i for i in indexs if i >= 0 and i < len(current_words)]
@@ -76,7 +76,7 @@ async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYP
 
             return ConversationState.DELETE_WORDS
 
-        removed = TELEGRAM_FILTER.delete_words(valid_indices)
+        removed = TELEGRAM_FILTER.delete_word_filters(valid_indices)
         TELEGRAM_FILTER.save()
         logger.info(f"Palavras removidas:\n{format_word_filter(removed)}")
 
@@ -103,7 +103,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
     try:
         await query.answer()
         selected_option = int(query.data) # type: ignore
-        current_words = TELEGRAM_FILTER.get_words()
+        current_words = TELEGRAM_FILTER.get_word_filters()
 
         if selected_option == ConversationState.MENU:
             await query.edit_message_text('<b>Escolha uma opção:</b>', parse_mode='HTML', reply_markup=REPLY_MARKUP)
