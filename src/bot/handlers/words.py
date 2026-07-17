@@ -5,6 +5,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.error import BadRequest
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
 from bot.utils.state import new_state
+from bot.utils.utils import get_valid_indexs
 from utils.text import format_word_filter, parse_word_filters
 from config.state import STATE
 
@@ -64,11 +65,9 @@ async def add_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 async def delete_words_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     try:
-        user_text = update.message.text or ""
         current_words = TELEGRAM_FILTER.get_word_filters()
 
-        indexs = [int(i.strip()) for i in user_text.split(';') if i.strip().isdigit()]
-        valid_indices = [i for i in indexs if i >= 0 and i < len(current_words)]
+        valid_indices = get_valid_indexs(update.message.text, current_words)
 
         if not valid_indices:
             reply_text = f"Erro ao deletar as palavras! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_word_filter(current_words)}"
