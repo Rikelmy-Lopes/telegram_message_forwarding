@@ -50,11 +50,9 @@ async def chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 
 async def add_chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     try:
-        user_text = update.message.text or ""
         global temp_chats
 
-        indexs = [int(i.strip()) for i in user_text.split(';') if i.strip().isdigit()]
-        valid_indexs = [i for i in indexs if i >= 0 and i < len(temp_chats)]
+        valid_indexs = get_valid_indexs(update.message.text, temp_chats)
 
         if valid_indexs:
 

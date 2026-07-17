@@ -1,6 +1,4 @@
-import asyncio
 import logging
-from time import perf_counter
 from telethon import events
 from bot.messages.message import send_message
 from config.state import STATE
@@ -10,11 +8,11 @@ from utils.text import contains_word
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
 _TELEGRAM_FILTER = STATE.get_telegram_filter()
 
 async def on_new_messages(event: events.NewMessage.Event):
     try:
-        start = perf_counter()
         texto_mensagem: str = event.message.text
 
         if not texto_mensagem:
@@ -38,16 +36,9 @@ async def on_new_messages(event: events.NewMessage.Event):
                     
                 link_mensagem = f"https://t.me/{event.chat.username}/{message_id}" if event.chat and event.chat.username else "Chat Privado"
                 alerta = f"🚨 <b>Palavra-chave detectada! ({words_str})</b> \n\nChat: {chat_title}\nTexto: {texto_mensagem}\nLink: {link_mensagem}"
-                    
-                asyncio.create_task(send_message(alerta))
-                # await send_message(alerta)
-                # send_notification(alerta, palavra)
+            
+                await send_message(alerta)
                 break
-
-
-        end = perf_counter()
-
-        print(f"Tempo execução: {(end - start) * 1000:.2f}ms")
 
     except Exception as e:
         logger.error(e)

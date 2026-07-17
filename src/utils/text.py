@@ -30,8 +30,8 @@ def parse_word_filters(message: str):
 
     for filter in message.strip().split(';'):
         if operator in filter:
-            word_filter_list = [v.strip().lower() for v in filter.split('+')]
-            word_filters.append(WordFilter(word_filter_list))
+            word_filter_list = [v.strip().lower() for v in filter.split('+') if v.strip()]
+            word_filters.append(WordFilter(word_filter_list[0] if len(word_filter_list) == 1 else word_filter_list))
         else:
             word_filters.append(WordFilter(filter.strip().lower()))
 
