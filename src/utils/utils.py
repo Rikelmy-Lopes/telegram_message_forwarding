@@ -1,7 +1,6 @@
 import logging
 import os
-from httpx import NetworkError
-from telegram.error import TelegramError
+from telegram.error import NetworkError, TelegramError
 from winotify import Notification
 
 logger = logging.getLogger(__name__)
