@@ -5,8 +5,8 @@ from model.word_filter import WordFilter
 
 def format_word_filter(word_filters: list[WordFilter]):
     return "".join(
-        f"<b>{index}</b> - {text.get_value()}\n"
-        if isinstance(text.get_value(), str) else
+        f"<b>{index}</b> - {text.get_value()[0]}\n"
+        if len(text.get_value()) == 1 else
         f"<b>{index}</b> - [{", ".join(text.get_value())}]\n"
         for index, text in enumerate(word_filters))
 
@@ -31,9 +31,9 @@ def parse_word_filters(message: str):
     for filter in message.strip().split(';'):
         if operator in filter:
             word_filter_list = [v.strip().lower() for v in filter.split('+') if v.strip()]
-            word_filters.append(WordFilter(word_filter_list[0] if len(word_filter_list) == 1 else word_filter_list))
+            word_filters.append(WordFilter(word_filter_list))
         else:
-            word_filters.append(WordFilter(filter.strip().lower()))
+            word_filters.append(WordFilter([filter.strip().lower()]))
 
     return word_filters
 
