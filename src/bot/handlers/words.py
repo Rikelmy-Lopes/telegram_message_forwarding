@@ -124,8 +124,8 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
         elif selected_option == ConversationState.ADD_WORDS:
             reply_text = (
                 "➕ <b>Adicionar Palavras</b>\n\n"
-                "Envie as palavras que deseja adicionar separadas por ponto e vírgula (;)."
-                "\n\n<b>Exemplo:</b>\n<code>promoção; grátis; desconto</code>"
+                "Envie as palavras que deseja adicionar separadas por ponto e vírgula (;). Para combinar termos, use o operador de soma (+)."
+                "\n\n<b>Exemplo:</b>\n<code>promoção; grátis; desconto; camisa + cupom</code>"
             )
             await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
             
