@@ -35,7 +35,7 @@ class _State:
     _chat_id: None | int
 
     def __init__(self) -> None:
-        self._telegram_client = TelegramClient('sessao_monitor', API_ID, API_HASH)
+        self._telegram_client = TelegramClient('sessao_monitor', API_ID, API_HASH, connection_retries=120, retry_delay=60)
         self._application = Application.builder().token(token=TOKEN).build()
         self._telegram_filter = TelegramFilter.load(chats=_chats)
         self._chat_id = None

@@ -32,7 +32,7 @@ async def main():
     await set_chat_id()
 
     if _application.updater:
-        await _application.updater.start_polling(error_callback=error_handler)
+        await _application.updater.start_polling(error_callback=error_handler, bootstrap_retries=120)
 
     logger.info("Monitor iniciado... Pressione Ctrl+C para parar.")
 
