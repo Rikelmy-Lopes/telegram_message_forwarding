@@ -115,7 +115,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
                 return ConversationState.MENU
             
-            reply_text = f"Palavras atualmente ativas:\n\n{format_word_filter(current_words)}"
+            reply_text = f"<b>Palavras atualmente ativas:</b>\n\n{format_word_filter(current_words)}"
 
             await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP)
 
@@ -141,7 +141,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
                 "🗑️ <b>Excluir Palavras</b>\n\n"
                 "Envie o número das palavras que deseja remover separadas por <code>;</code>.\n\n"
                 "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
-                f"<b>Lista atual:</b>\n{format_word_filter(current_words)}"
+                f"<b>Lista atual:</b>\n\n{format_word_filter(current_words)}"
                 )
             await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
 

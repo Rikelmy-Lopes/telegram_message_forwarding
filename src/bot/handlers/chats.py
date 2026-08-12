@@ -135,7 +135,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
                 return ConversationState.MENU
             
-            reply_text = f"Chats atualmente sendo monitorados:\n\n{format_chat_list(current_chats)}"
+            reply_text = f"<b>Chats atualmente sendo monitorados:</b>\n\n{format_chat_list(current_chats)}"
             await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
 
             return ConversationState.MENU
@@ -151,7 +151,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
                 "Envie o número dos chats que deseja adicionar separadas por ponto e vírgula (;).\n\n"
                 "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
                 "Obs: Chats <s>riscados</s> já estão sendo monitorados.\n\n"
-                f"Chats disponiveis:\n{format_chat_list_with_exclusion(temp_chats, current_chat_ids)}"
+                f"<b>Chats disponiveis:</b>\n\n{format_chat_list_with_exclusion(temp_chats, current_chat_ids)}"
             )
             await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
             
@@ -167,7 +167,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
                 "🗑️ <b>Excluir Chats</b>\n\n"
                 "Envie o número dos chats que deseja remover separadas por <code>;</code>.\n\n"
                 "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
-                f"<b>Lista atual:</b>\n{format_chat_list(current_chats)}"
+                f"<b>Lista atual:</b>\n\n{format_chat_list(current_chats)}"
                 )
             await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
 
