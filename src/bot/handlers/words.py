@@ -165,7 +165,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
 
 
-words_handler = ConversationHandler(
+WORDS_HANDLER = ConversationHandler(
     entry_points=[CommandHandler('words', words_command)],
     states={
         ConversationState.MENU: [CallbackQueryHandler(handle_menu_selection)],

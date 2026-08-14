@@ -25,11 +25,11 @@ def format_chat_list_with_exclusion(chats: list[Chat], current_chat_ids: set[int
 
 
 def parse_word_filters(message: str):
-    operator = '+'
+    OPERATOR = '+'
     word_filters: list[WordFilter] = []
 
     for filter in message.strip().split(';'):
-        if operator in filter:
+        if OPERATOR in filter:
             word_filter_list = [v.strip().lower() for v in filter.split('+') if v.strip()]
             word_filters.append(WordFilter(word_filter_list))
         else:

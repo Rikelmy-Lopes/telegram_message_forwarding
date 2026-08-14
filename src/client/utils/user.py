@@ -2,10 +2,10 @@
 from config.state import STATE
 from model.chat import Chat
 
-_telegram_client = STATE.get_telegram_client()
+_TELEGRAM_CLIENT = STATE.get_telegram_client()
 
 async def set_chat_id():
-    user = await _telegram_client.get_me()
+    user = await _TELEGRAM_CLIENT.get_me()
 
     if not user or not user.id: # type: ignore
         raise Exception("User id cannot be None!")
@@ -16,7 +16,7 @@ async def set_chat_id():
 async def get_user_chats():
     chats: list[Chat] = []
 
-    async for dialog in _telegram_client.iter_dialogs():
+    async for dialog in _TELEGRAM_CLIENT.iter_dialogs():
         if dialog.is_channel or dialog.is_group:
             chats.append(Chat(dialog.id, dialog.name))
 

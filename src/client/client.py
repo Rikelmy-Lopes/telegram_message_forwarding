@@ -4,6 +4,6 @@ from config.state import STATE
 
 
 def set_event_handlers():
-    _telegram_client = STATE.get_telegram_client()
+    TELEGRAM_CLIENT = STATE.get_telegram_client()
 
-    _telegram_client.add_event_handler(on_new_messages, events.NewMessage(incoming=True, chats=STATE.get_telegram_filter().get_chats_id()))
+    TELEGRAM_CLIENT.add_event_handler(on_new_messages, events.NewMessage(incoming=True, chats=STATE.get_telegram_filter().get_chats_id()))
