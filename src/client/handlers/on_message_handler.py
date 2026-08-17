@@ -2,10 +2,11 @@ import logging
 from telethon import events
 from bot.messages.message import send_message
 from config.state import STATE
-# from utils import send_notification
+from utils.text import contains_word
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
 
 _TELEGRAM_FILTER = STATE.get_telegram_filter()
 
@@ -20,15 +21,20 @@ async def on_new_messages(event: events.NewMessage.Event):
         message_id = event.message.id
         texto_comparacao = texto_mensagem.lower()
 
-        for palavra in _TELEGRAM_FILTER.get_words():
-            if palavra in texto_comparacao:
-                logger.info(f"Palavra encontrada no chat {chat_title} - ({palavra})!")
-                
+        for word_filter in _TELEGRAM_FILTER.get_word_filters():
+            words = word_filter.get_value()
+
+            is_all_finded = all(contains_word(word, texto_comparacao) for word in words)
+
+            if is_all_finded:
+                words_str = ', '.join(words)
+
+                logger.info(f"Palavra encontrada no chat {chat_title} - ({words_str})!")
+                    
                 link_mensagem = f"https://t.me/{event.chat.username}/{message_id}" if event.chat and event.chat.username else "Chat Privado"
-                alerta = f"🚨 <b>Palavra-chave detectada! ({palavra})</b> \n\nChat: {chat_title}\nTexto: {texto_mensagem}\nLink: {link_mensagem}"
-                
+                alerta = f"🚨 <b>Palavra-chave detectada! ({words_str})</b> \n\nChat: {chat_title}\nTexto: {texto_mensagem}\nLink: {link_mensagem}"
+            
                 await send_message(alerta)
-                # send_notification(alerta, palavra)
                 break
 
     except Exception as e:

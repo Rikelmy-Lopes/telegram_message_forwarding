@@ -16,4 +16,3 @@ rsa==4.9.1
 Telethon==1.44.0
 typing-inspection==0.4.2
 typing_extensions==4.16.0
-winotify==1.1.0

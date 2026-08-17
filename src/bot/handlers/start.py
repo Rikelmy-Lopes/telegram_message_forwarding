@@ -15,7 +15,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
-start_handler = ConversationHandler(
+START_HANDLER = ConversationHandler(
     entry_points=[CommandHandler('start', start_command)],
     states={},
     fallbacks=[]

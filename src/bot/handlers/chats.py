@@ -4,6 +4,7 @@ import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, LinkPreviewOptions, Update
 from telegram.error import BadRequest
 from telegram.ext import CallbackQueryHandler, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
+from bot.utils.utils import get_valid_indexs
 from client.handlers.handlers import update_on_new_messages_handler
 from client.utils.user import get_user_chats
 from bot.utils.state import new_state
@@ -49,11 +50,9 @@ async def chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 
 async def add_chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     try:
-        user_text = update.message.text or ""
         global temp_chats
 
-        indexs = [int(i.strip()) for i in user_text.split(';') if i.strip().isdigit()]
-        valid_indexs = [i for i in indexs if i >= 0 and i < len(temp_chats)]
+        valid_indexs = get_valid_indexs(update.message.text, temp_chats)
 
         if valid_indexs:
 
@@ -83,11 +82,9 @@ async def add_chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 async def delete_chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     try:
-        user_text = update.message.text or ""
         current_chats = TELEGRAM_FILTER.get_chats()
 
-        indexs = [int(i.strip()) for i in user_text.split(';') if i.strip().isdigit()]
-        valid_indices = [i for i in indexs if i >= 0 and i < len(current_chats)]
+        valid_indices = get_valid_indexs(update.message.text, current_chats)
 
         if not valid_indices:
             reply_text = f"Erro ao deletar os chats! Envie os numeros novamente.\n<b>Lista atual:</b>\n{format_chat_list(current_chats)}"
@@ -138,7 +135,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
                 return ConversationState.MENU
             
-            reply_text = f"Chats atualmente sendo monitorados:\n\n{format_chat_list(current_chats)}"
+            reply_text = f"<b>Chats atualmente sendo monitorados:</b>\n\n{format_chat_list(current_chats)}"
             await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
 
             return ConversationState.MENU
@@ -154,7 +151,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
                 "Envie o número dos chats que deseja adicionar separadas por ponto e vírgula (;).\n\n"
                 "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
                 "Obs: Chats <s>riscados</s> já estão sendo monitorados.\n\n"
-                f"Chats disponiveis:\n{format_chat_list_with_exclusion(temp_chats, current_chat_ids)}"
+                f"<b>Chats disponiveis:</b>\n\n{format_chat_list_with_exclusion(temp_chats, current_chat_ids)}"
             )
             await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP)
             
@@ -170,7 +167,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
                 "🗑️ <b>Excluir Chats</b>\n\n"
                 "Envie o número dos chats que deseja remover separadas por <code>;</code>.\n\n"
                 "<b>Exemplo:</b> <code>1;3;5</code>\n\n"
-                f"<b>Lista atual:</b>\n{format_chat_list(current_chats)}"
+                f"<b>Lista atual:</b>\n\n{format_chat_list(current_chats)}"
                 )
             await query.edit_message_text(reply_text, parse_mode='HTML', reply_markup=BACK_REPLY_MARKUP, link_preview_options=LINK_PREVIEW_OPTIONS)
 
@@ -194,7 +191,7 @@ async def handle_menu_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
 
 
-chats_handler = ConversationHandler(
+CHATS_HANDLER = ConversationHandler(
     entry_points=[CommandHandler('chats', chats_command)],
     states={
         ConversationState.MENU: [CallbackQueryHandler(handle_menu_selection)],
