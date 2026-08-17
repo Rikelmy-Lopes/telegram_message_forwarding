@@ -3,7 +3,6 @@ from telethon import events
 from bot.messages.message import send_message
 from config.state import STATE
 from utils.text import contains_word
-# from utils import send_notification
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
