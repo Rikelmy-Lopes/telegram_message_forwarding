@@ -2,7 +2,6 @@ import re
 from model.chat import Chat
 from model.word_filter import WordFilter
 
-
 def format_word_filter(word_filters: list[WordFilter]):
     return "".join(
         f"<b>{index}</b> - {text.get_value()[0]}\n"
@@ -46,3 +45,7 @@ def create_regex_whole_word(word: str):
 
 def contains_word(word: str, text: str):
     return bool(re.search(create_regex_whole_word(word), text))
+
+
+def remove_markdown_symbols(text: str):
+    return text.replace("**", "").replace("__", "").replace("~~", "").replace('`', "")
