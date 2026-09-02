@@ -1,3 +1,4 @@
+from functools import lru_cache
 import re
 from model.chat import Chat
 from model.word_filter import WordFilter
@@ -37,6 +38,7 @@ def parse_word_filters(message: str):
     return word_filters
 
 
+@lru_cache(maxsize=512)
 def create_regex_whole_word(word: str):
     pattern = rf'(?<!\S){re.escape(word)}(?!\S)'
 

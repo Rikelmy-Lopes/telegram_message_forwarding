@@ -5,3 +5,4 @@
 app.log
 telegram_filter.json
 *.backup
+test.py
