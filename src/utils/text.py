@@ -40,7 +40,8 @@ def parse_word_filters(message: str):
 
 @lru_cache(maxsize=512)
 def create_regex_whole_word(word: str):
-    pattern = rf'(?<!\S){re.escape(word)}(?!\S)'
+    # pattern = rf'(?<![^\s.,!?;:()])({re.escape(word)})(?=[.,!?;:)]*(?:\s|$))'
+    pattern = rf'(?<![\w%-]){re.escape(word)}(?![\w%-])'
 
     return re.compile(pattern, re.IGNORECASE)
 
