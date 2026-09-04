@@ -1,8 +1,9 @@
 import logging
+import time
 from telethon import events
 from bot.messages.message import send_message
 from config.state import STATE
-from utils.text import contains_word, remove_markdown_symbols
+from utils.text import contains_word, normalize_text
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -19,9 +20,8 @@ async def on_new_messages(event: events.NewMessage.Event):
         
         chat_title = event.chat.title if event.chat and event.chat.title else 'Chat Desconhecido'
         message_id = event.message.id
-        texto_comparacao = texto_mensagem.lower()
 
-        texto_comparacao = remove_markdown_symbols(texto_comparacao)
+        texto_comparacao = normalize_text(texto_mensagem, True)
 
         for word_filter in _TELEGRAM_FILTER.get_word_filters():
             words = word_filter.get_value()

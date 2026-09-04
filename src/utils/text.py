@@ -52,3 +52,16 @@ def contains_word(word: str, text: str):
 
 def remove_markdown_symbols(text: str):
     return text.replace("**", "").replace("__", "").replace("~~", "").replace('`', "")
+
+
+def remove_multi_spaces(text: str):
+    return " ".join(text.split())
+
+
+def normalize_text(text: str, lowercase: bool = False):
+    text = remove_markdown_symbols(text)
+
+    if (lowercase):
+        text = text.lower()
+
+    return remove_multi_spaces(text)
