@@ -4,29 +4,6 @@ from config.config import API_HASH, API_ID, TOKEN
 from model.chat import Chat
 from model.telegram_filter import TelegramFilter
 
-_words = [
-    'stick tv',
-    'tv stick',
-    'mi tv stick',
-    'xiaomi tv stick',
-    'mi tv stick 4k',
-    'playstation 5',
-    'play station 5',
-    'ps5',
-    'playstation',
-]
-
-_chats = [
-    Chat(-1001429192579, '🛒 Canal Garimpeiros 💸 Promoções, Ofertas, BUGs e Cupons'),
-    Chat(-1001237760290, 'Economizanderson'),
-    Chat(-1001518448659, 'Garimpo Ofertas- Cupons e Promoções'),
-    Chat(-1001272487537, 'Terabyte Ofertas'),
-    Chat(-1001443115288, 'BROTHERS OFERTAS OFICIAL'),
-    Chat(-1001197236241, 'gt.OFERTAS'),
-    Chat(-1002022913925, 'OFERTAS - TO SEM KIT'),
-    Chat(-1002066258145, 'PC Build Wizard')
-]
-
 class _State:
     _instance = None
     _telegram_client: TelegramClient
@@ -37,7 +14,7 @@ class _State:
     def __init__(self) -> None:
         self._telegram_client = TelegramClient('message_forwarding', API_ID, API_HASH, connection_retries=120, retry_delay=60)
         self._application = Application.builder().token(token=TOKEN).build()
-        self._telegram_filter = TelegramFilter.load(chats=_chats)
+        self._telegram_filter = TelegramFilter.load()
         self._chat_id = None
 
     def __new__(cls):

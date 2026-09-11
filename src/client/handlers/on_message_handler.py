@@ -1,16 +1,13 @@
 import logging
 from telethon import events
 from bot.messages.message import send_message
-from config.state import STATE
+from model.telegram_filter import TelegramFilter
 from utils.text import contains_word, normalize_text
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-
-_TELEGRAM_FILTER = STATE.get_telegram_filter()
-
-async def on_new_messages(event: events.NewMessage.Event):
+async def on_new_messages(event: events.NewMessage.Event, telegram_filter: TelegramFilter):
     try:
         text_message: str = event.message.text
 
@@ -22,7 +19,7 @@ async def on_new_messages(event: events.NewMessage.Event):
 
         comparison_text = normalize_text(text_message, True)
 
-        for word_filter in _TELEGRAM_FILTER.get_word_filters():
+        for word_filter in telegram_filter.get_word_filters():
             words = word_filter.get_value()
 
             is_all_finded = all(contains_word(word, comparison_text) for word in words)
@@ -34,7 +31,7 @@ async def on_new_messages(event: events.NewMessage.Event):
                     
                 link_mensagem = f"https://t.me/{event.chat.username}/{message_id}" if event.chat and event.chat.username else "Chat Privado"
                 alert_message = f"🚨 <b>Palavra-chave detectada! ({words_str})</b> \n\nChat: {chat_title}\nTexto:\n{text_message}\n\nLink da mensagem: {link_mensagem}"
-            
+
                 await send_message(alert_message)
                 break
 
