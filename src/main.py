@@ -4,7 +4,7 @@ import logging
 from bot.bot import set_application_handlers
 from client.client import set_event_handlers
 from client.utils.user import set_chat_id
-from utils.text import format_chat_list, format_word_filter
+from utils.logging import print_word_filter, print_chat_list
 from config.state import STATE
 from utils.utils import error_handler
 
@@ -17,8 +17,8 @@ async def main():
     TELEGRAM_CLIENT = STATE.get_telegram_client()
     APPLICATION = STATE.get_application()
 
-    logger.info(f"Palavras sendo monitoradas:\n{format_word_filter(TELEGRAM_FILTER.get_word_filters())}\n")
-    logger.info(f"Chats sendo monitorados:\n{format_chat_list(TELEGRAM_FILTER.get_chats(), True)}\n")
+    logger.info(f"Palavras sendo monitoradas:\n{print_word_filter(TELEGRAM_FILTER.get_word_filters())}\n")
+    logger.info(f"Chats sendo monitorados:\n{print_chat_list(TELEGRAM_FILTER.get_chats())}\n")
 
     set_application_handlers()
     set_event_handlers()

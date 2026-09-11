@@ -11,8 +11,8 @@ def format_word_filter(word_filters: list[WordFilter]):
         for index, text in enumerate(word_filters))
 
 
-def format_chat_list(chats: list[Chat], use_id: bool = False):
-    return "".join(f"<b>{chat.get_id() if use_id else index}</b> - {chat.get_name()}\n" for index, chat in enumerate(chats))
+def format_chat_list(chats: list[Chat]):
+    return "".join(f"<b>{index}</b> - {chat.get_name()}\n" for index, chat in enumerate(chats))
 
 
 def format_chat_list_with_exclusion(chats: list[Chat], current_chat_ids: set[int]) -> str:
