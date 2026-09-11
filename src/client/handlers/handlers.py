@@ -11,7 +11,7 @@ async def _on_new_messages_callback(e: events.NewMessage.Event):
 def update_on_new_messages_handler():
     telegram_client = STATE.get_telegram_client()
 
-    new_message_event = events.NewMessage(incoming=False, chats=_TELEGRAM_FILTER.get_chats_id())
+    new_message_event = events.NewMessage(chats=_TELEGRAM_FILTER.get_chats_id())
 
     telegram_client.remove_event_handler(_on_new_messages_callback)
     telegram_client.add_event_handler(_on_new_messages_callback, new_message_event)

@@ -1,7 +1,6 @@
 from telegram.ext import Application
 from telethon import TelegramClient
 from config.config import API_HASH, API_ID, TOKEN
-from model.chat import Chat
 from model.telegram_filter import TelegramFilter
 
 class _State:
