@@ -20,6 +20,6 @@ pytest-asyncio==1.4.0
 python-dotenv==1.2.3
 python-telegram-bot==22.8
 rsa==4.9.1
-Telethon==1.44.0
+Telethon==1.45.0
 typing-inspection==0.4.4
 typing_extensions==4.16.0
